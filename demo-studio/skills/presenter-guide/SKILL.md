@@ -1,16 +1,19 @@
 ---
 name: presenter-guide
 description: >-
-  Use when the user wants a presenter guide, teleprompter script, speaker notes,
-  or a live-demo run-of-show folded in from a runbook.
+  Use when someone wants a presenter guide, speaker notes, a teleprompter script,
+  per-slide talking points or questions to ask, a run of show, or wants a demo
+  runbook turned into a live walkthrough for delivering a deck.
 ---
 
 # Presenter Guide
 
-Read `references/presenter-guide-format.md`. Per slide: Talking points, Say
-(teleprompter, one beat per line), and Ask. Fold a demo RUNBOOK into the optional
-`demo` block: cold start, the two lanes, a card per beat with the exact Ctrl-C,
-plus reference/switches.
+Write this against the FINAL assembled deck, not a draft: slide numbers, order,
+and content need to be locked first, or the guide is presenting a deck that
+does not exist yet. Read `references/presenter-guide-format.md`. Per slide:
+Talking points, Say (teleprompter, one beat per line), and Ask. Fold a demo
+RUNBOOK into the optional `demo` block: cold start, the two lanes, a card per
+beat with the exact Ctrl-C, plus reference/switches.
 
 ## Quickstart (per-slide points / teleprompter Say / questions + demo run-of-show)
 

@@ -1,10 +1,10 @@
 ---
 name: demo-discovery
 description: >-
-  Use when the user shares a discovery or customer call transcript and wants it
-  read for the technical buyer, stated pains, stack, and constraints, mapped to
-  candidate demos, and shaped into a session design and v1 versus v2 scope,
-  before any build spec or deck work starts.
+  Use when a call transcript needs reading for demo signals, when someone asks
+  which demo to lead with or skip, who will be in the room, what stack or
+  constraints the customer stated, or wants a demo fit analysis, a session beat
+  sheet, or a grounded versus inferred record of what was actually said.
 ---
 
 # Demo Discovery

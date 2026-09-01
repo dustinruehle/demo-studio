@@ -1,8 +1,9 @@
 ---
 name: deck-flow-guide
 description: >-
-  Use when the user wants to build, reorder, or piece together a deck flow from
-  existing slides, or asks for a flow guide from a transcript or a demo.
+  Use when someone wants a flow guide, wants an existing deck reordered or pieced
+  together for a specific room, asks which slides to pull and which to build, or
+  wants a cut list for when the session runs short.
 ---
 
 # Deck Flow Guide

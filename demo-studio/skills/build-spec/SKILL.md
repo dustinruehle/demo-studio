@@ -1,8 +1,9 @@
 ---
 name: build-spec
 description: >-
-  Use when the user asks to spec a customer demo, write a build spec, or produce
-  something a coding agent can execute end to end to build a demo.
+  Use when someone wants a build spec, wants a customer demo specified so a
+  coding agent can build it end to end, or asks what to hand an engineer to make
+  the demo real.
 ---
 
 # Build Spec

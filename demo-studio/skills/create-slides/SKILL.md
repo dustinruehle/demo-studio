@@ -1,8 +1,9 @@
 ---
 name: create-slides
 description: >-
-  Use when the user needs the net-new slides built as a dark, Google-Slides-safe
-  PPTX, or wants existing create slides tweaked and re-rendered.
+  Use when someone wants net-new slides built, a dark PPTX that drops into an
+  aggregate deck, slide mockups or diagrams for a demo deck, or wants existing
+  create slides tweaked and re-rendered.
 ---
 
 # Create Slides
