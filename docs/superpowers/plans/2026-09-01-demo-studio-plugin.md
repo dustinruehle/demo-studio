@@ -685,6 +685,29 @@ def run_generator(skill, script, config, out):
 
 Update the three call sites to unpack four-tuples and pass `skill`.
 
+- [ ] **Step 6b: Update capture_baseline.sh for the new paths**
+
+Task 5 re-runs this script, so it must follow the move. Replace the two
+generator invocations:
+
+```bash
+"$PY" "$root/skills/deck-flow-guide/assets/build_flow_guide.py" \
+      "$root/skills/deck-flow-guide/assets/examples/flow_guide.example.json" \
+      "$out/flow-guide.html"
+"$PY" "$root/skills/presenter-guide/assets/build_presenter_guide.py" \
+      "$root/skills/presenter-guide/assets/examples/presenter_guide.example.json" \
+      "$out/presenter-guide.html"
+```
+
+Verify it still reproduces the golden files byte for byte:
+
+```bash
+cd /Users/dan/code/skills/demo-studio
+cp tests/baseline/flow-guide.html /tmp/golden-flow.html
+PY=~/.asdf/installs/python/3.12.12/bin/python3 bash tests/capture_baseline.sh
+diff /tmp/golden-flow.html tests/baseline/flow-guide.html && echo "baseline reproduces exactly"
+```
+
 - [ ] **Step 7: Run every test**
 
 ```bash
@@ -2199,6 +2222,10 @@ function bboxes(slide) {
 
 function u(inches) { return inches * SCALE; }
 
+// Exact for op geometry, rounded for the canvas: u(13.333) is 1333.3000000000002
+// in floating point, which would make the viewBox unreadable and untestable.
+function viewBoxDim(inches) { return Math.round(inches * SCALE); }
+
 // Block arrows as polygons. Never a <line>: Google Slides drops connectors, and
 // the SVG must show what the deck will actually contain.
 function arrowRightPoints(x, y, w, h) {
@@ -2261,10 +2288,10 @@ function renderSvg(slide, palette) {
   const p = Object.assign({}, DEFAULT_PALETTE, palette || {});
   const body = slide.ops.map((o) => renderOp(o, p)).join('\n  ');
   return [
-    `<svg viewBox="0 0 ${u(LAYOUT.w)} ${u(LAYOUT.h)}" `
+    `<svg viewBox="0 0 ${viewBoxDim(LAYOUT.w)} ${viewBoxDim(LAYOUT.h)}" `
       + `preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%" `
       + `xmlns="http://www.w3.org/2000/svg">`,
-    `  <rect x="0" y="0" width="${u(LAYOUT.w)}" height="${u(LAYOUT.h)}" fill="${hex(p.bg)}"/>`,
+    `  <rect x="0" y="0" width="${viewBoxDim(LAYOUT.w)}" height="${viewBoxDim(LAYOUT.h)}" fill="${hex(p.bg)}"/>`,
     `  <text x="60" y="52" fill="${hex('8E6BE6')}" font-family="${p.mono}" `
       + `font-size="14" letter-spacing="2">${esc(slide.eyebrow)}</text>`,
     `  <text x="58" y="105" fill="${hex(p.txt)}" font-family="${p.heading}" `
@@ -2282,14 +2309,6 @@ module.exports = {
   _internal: { hex, esc, plainText, u, renderOp, DEFAULT_PALETTE },
 };
 ```
-
-Note `u(13.333)` is `1333.3000000000002` in floating point, so the viewBox test would fail. Round in `u` for the viewBox only:
-
-```js
-function viewBoxDim(inches) { return Math.round(inches * SCALE); }
-```
-
-and use `viewBoxDim` in the two `viewBox` and background-rect positions. Keep `u` exact for op geometry so the parity test in Task 10 compares real numbers.
 
 - [ ] **Step 4: Run the tests to verify they pass**
 
@@ -2356,17 +2375,23 @@ test('PARITY: every op has the same bbox in both backends', () => {
   const s = sample();
   const pres = stubPres();
   kit.renderPptx([s], pres);
-  const placed = pres.slides[0].texts.concat(pres.slides[0].shapes)
-    .map((e) => e.opts)
-    .filter((o) => typeof o.x === 'number' && o.x >= 0.5); // skip the header block
+  // renderPptx always emits exactly three header texts first (eyebrow, title,
+  // sub). Skip them structurally: filtering by coordinate does not work, because
+  // the header sits at x 0.58 and 0.6, inside the range real ops occupy.
+  const HEADER_TEXTS = 3;
+  const placed = pres.slides[0].texts.slice(HEADER_TEXTS)
+    .concat(pres.slides[0].shapes)
+    .map((e) => e.opts);
   const boxes = kit.bboxes(s);
   assert.strictEqual(placed.length, boxes.length,
     'the PPTX backend placed a different number of elements than there are ops');
-  boxes.forEach((b, i) => {
-    assert.strictEqual(placed[i].x, b.x, `op ${i} (${b.op}) x differs`);
-    assert.strictEqual(placed[i].y, b.y, `op ${i} (${b.op}) y differs`);
-    assert.strictEqual(placed[i].w, b.w, `op ${i} (${b.op}) w differs`);
-    assert.strictEqual(placed[i].h, b.h, `op ${i} (${b.op}) h differs`);
+  // Ops are compared by bbox membership, not index: box/label become texts and
+  // frame/arrow become shapes, so the concatenated order is not the op order.
+  const key = (o) => `${o.x},${o.y},${o.w},${o.h}`;
+  const placedKeys = new Set(placed.map(key));
+  boxes.forEach((b) => {
+    assert.ok(placedKeys.has(key(b)),
+      `op ${b.op} bbox ${key(b)} was not placed by the PPTX backend`);
   });
 });
 
@@ -2509,19 +2534,23 @@ const brand = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', '..', '..', 'shared', 'brand.json'), 'utf8'));
 const P = brand.surfaces.pptx;
 const palette = {
-  bg: P.bg, panel: P.panel, border: P.border, txt: P.txt, mut: P.mut,
+  bg: nohash(P.bg), panel: nohash(P.panel), border: nohash(P.border),
+  txt: nohash(P.txt), mut: nohash(P.mut),
   heading: brand.fonts.heading, body: brand.fonts.body, mono: brand.fonts.mono,
 };
-const IND = P.indigo, CORAL = P.coral, GREEN = P.green;
+// brand.json stores hex with a leading '#', pptxgenjs and the slide lint want it
+// without. Normalise once, here, rather than at every call site.
+const nohash = (c) => String(c).replace(/^#/, '');
+const IND = nohash(P.indigo), CORAL = nohash(P.coral), GREEN = nohash(P.green);
 
 const slides = [
   kit.recordSlide(
     { eyebrow: 'SETUP FLOW 01', title: 'Two lanes, one truth',
       sub: 'Durable state survives; the live worker query does not' },
     (k) => {
-      k.box(0.6, 2.4, 4.6, 1.4, { rt: 'PLATFORM LANE', fill: P.panel });
+      k.box(0.6, 2.4, 4.6, 1.4, { rt: 'PLATFORM LANE', fill: nohash(P.panel) });
       k.arrowR(5.5, 2.9, 0.7, 0.4, IND);
-      k.box(6.5, 2.4, 4.6, 1.4, { rt: 'WORKER LANE', fill: P['coral-fill'] });
+      k.box(6.5, 2.4, 4.6, 1.4, { rt: 'WORKER LANE', fill: nohash(P['coral-fill']) });
       k.label(0.6, 4.0, 4.6, 'SURVIVES A CRASH', GREEN, 9, 'center');
       k.label(6.5, 4.0, 4.6, 'GOES OFFLINE', CORAL, 9, 'center');
     }),
