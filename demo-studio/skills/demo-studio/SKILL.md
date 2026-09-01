@@ -3,9 +3,10 @@ name: demo-studio
 description: >-
   Use when someone shares a customer or discovery call transcript and wants demo
   or enablement work, when they ask for the whole pre-sales set for an upcoming
-  session, when they say "demo studio", or when they want demo help but it is not
-  clear which piece they need. Not for a request that names one artifact: those
-  have their own skills.
+  session, when they name several pieces to build or want to resume the pipeline
+  partway with earlier stages already settled, when they say "demo studio", or
+  when they want demo help but it is not clear which piece they need. Not for a
+  request that names exactly one artifact: that has its own skill.
 ---
 
 # Demo Studio

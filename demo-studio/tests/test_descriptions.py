@@ -81,6 +81,18 @@ class TestDescriptions(unittest.TestCase):
                       "demo-discovery must exclude the full-pipeline ask that the router "
                       "owns, or a bare transcript share can match here instead of the router")
 
+    def test_the_router_claims_a_multi_artifact_or_resume_partway_request(self):
+        """"I know the demo already, build the deck and the guides" names three
+        artifacts. If the router only excludes single-artifact requests without
+        positively claiming this case, a single worker can win it on a keyword
+        match and the router never gets a chance to sequence the workers."""
+        router = description("demo-studio").lower()
+        self.assertTrue(
+            any(phrase in router for phrase in
+                ("several pieces", "resume the pipeline", "partway")),
+            "router description must positively claim a multi-artifact or "
+            "resume-partway request, not rely on vagueness")
+
     def test_every_description_fits_the_frontmatter_budget(self):
         for name in ALL:
             with self.subTest(skill=name):
