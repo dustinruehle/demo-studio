@@ -19,6 +19,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "..", "..", "shared"))
 import brand
 import guardrails
+import validate_config
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import schema_flow_guide
 
 def esc(s): return html.escape(str(s), quote=True)
 
@@ -248,14 +251,36 @@ CSS = brand.root_block("flow_guide") + r'''
     .card,.cut,.act{break-inside:avoid;}
   }'''
 
-if __name__ == "__main__":
+def main():
     here=os.path.dirname(os.path.abspath(__file__))
     cfg_path = sys.argv[1] if len(sys.argv)>1 else os.path.join(here,"examples","flow_guide.example.json")
     out_path = sys.argv[2] if len(sys.argv)>2 else "flow-guide.html"
     cfg=json.load(open(cfg_path))
+
+    validate_config.enforce(cfg, schema_flow_guide.SCHEMA, name=os.path.basename(cfg_path))
+
+    for ai, act in enumerate(cfg["acts"]):
+        for ci, card in enumerate(act.get("cards", [])):
+            where = "acts[%d].cards[%d]" % (ai, ci)
+            if card["type"] == "deck" and not card.get("deckid_quote"):
+                raise validate_config.ConfigError(
+                    "%s: a deck card needs deckid_quote, the verbatim slide headline"
+                    % where)
+            if card["type"] == "create" and not card.get("preview"):
+                raise validate_config.ConfigError(
+                    "%s: a create card needs a preview block" % where)
+
     allowlist = cfg.get("allow_words", ())
     banned = cfg.get("banned_terms", ())
     guardrails.enforce(guardrails.check_tree(cfg, allowlist=allowlist, banned=banned))
     open(out_path,"w").write(build(cfg))
     n=sum(len(a["cards"]) for a in cfg["acts"])
     print("wrote", out_path, "with", len(cfg["acts"]), "acts and", n, "cards")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (validate_config.ConfigError, guardrails.GuardrailError) as err:
+        sys.stderr.write(str(err) + "\n")
+        sys.exit(1)

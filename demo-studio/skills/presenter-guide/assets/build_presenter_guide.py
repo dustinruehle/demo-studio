@@ -17,6 +17,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "..", "..", "shared"))
 import brand
 import guardrails
+import validate_config
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import schema_presenter_guide
 
 def esc(s): return html.escape(str(s), quote=True)
 
@@ -332,14 +335,31 @@ addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(()=>{se
 addEventListener('load',setActive); setActive();
 '''
 
-if __name__ == "__main__":
+def main():
     here=os.path.dirname(os.path.abspath(__file__))
     cfg_path = sys.argv[1] if len(sys.argv)>1 else os.path.join(here,"examples","presenter_guide.example.json")
     out_path = sys.argv[2] if len(sys.argv)>2 else "presenter-guide.html"
     cfg=json.load(open(cfg_path))
+
+    validate_config.enforce(cfg, schema_presenter_guide.SCHEMA, name=os.path.basename(cfg_path))
+
+    for i, slide in enumerate(cfg["slides"]):
+        if slide["act"] not in cfg["acts"]:
+            raise validate_config.ConfigError(
+                "slides[%d].act: %r is not a key in acts (have: %s)"
+                % (i, slide["act"], ", ".join(sorted(cfg["acts"]))))
+
     allowlist = cfg.get("allow_words", ())
     banned = cfg.get("banned_terms", ())
     guardrails.enforce(guardrails.check_tree(cfg, allowlist=allowlist, banned=banned))
     open(out_path,"w").write(build(cfg))
     print("wrote", out_path, "with", len(cfg["slides"]), "slides",
           "+ demo" if cfg.get("demo") else "")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (validate_config.ConfigError, guardrails.GuardrailError) as err:
+        sys.stderr.write(str(err) + "\n")
+        sys.exit(1)
