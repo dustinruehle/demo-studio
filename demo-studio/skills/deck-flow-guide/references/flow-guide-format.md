@@ -36,18 +36,60 @@ raw SVG or HTML mockup of the slide.
 `why` and `traces` accept inline HTML (use `<b>...</b>` for emphasis, `<code>` for
 identifiers). Keep them to one line each. No em dashes.
 
+## Traces to discovery
+
+`traces` is **required** on every card here, unlike on a presenter-guide slide
+where it is optional. Write a discovery signal id, for example `D2`, or a short
+phrase if you have not run discovery for this engagement.
+
+Add an optional top-level `discovery` field naming a `discovery.json` path
+(relative paths resolve against this config's own directory). When present, the
+build resolves every card's `traces` value against that record's signal ids:
+
+- an id that does not exist (`traces: "D9"` when the record has no `D9`) is an
+  `unresolved-trace` and **hard-fails the build**, naming the card and the id;
+- a `traces` value with no signal id at all (free text) is `untraced` and only
+  **warns**, so an engagement with no discovery record yet still builds;
+- when the config has no `discovery` field, the check is skipped entirely, and
+  the build prints a note saying so rather than passing silently.
+
+See `../../demo-discovery/references/discovery-format.md` for the id format
+and `../../demo-discovery/SKILL.md` to produce a `discovery.json`.
+
+## Public-safe escape: `allow_words` and `banned_terms`
+
+Optional top-level fields, both arrays of strings, read by the same guardrail
+that scans every text field in this config:
+
+- `banned_terms`: identifiers that must never reach the output (a real
+  customer name, a codename, an internal host). Any match anywhere in the
+  config, case-insensitive and word-bounded, hard-fails the build.
+- `allow_words`: a documented escape for the AI-tell filter. If a listed word
+  ("robust", "actually", etc.) is doing legitimate technical work here, name it
+  in this list rather than rewording around a false positive.
+
 ## Authoring the create-card preview (`preview.body`)
 
-The preview renders inside a fixed `.slide` frame (white, 16:9). Two ways to draw:
+The preview renders inside a fixed `.slide` frame (white, 16:9). For a card whose
+slide will also become a real create-slide, do not hand-draw it here: build the
+slide once with `demo-studio:create-slides`, which writes `slide-previews.json`
+(one entry per slide, produced by `build_create_slides.js`), and paste the
+matching SVG into `preview.body`. This is "design once, render many": the flow
+guide, the PPTX, and any future consumer show the same drawing because they all
+derive from the same slidekit coordinate space, so the mockup and the shipped
+slide cannot drift apart.
 
-**A. Inline SVG** (best for diagrams with arrows). Use `viewBox="0 0 760 330"` and
-`preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%"`. Brand colors:
-indigo `#4C2889`, coral `#E2664A`, green `#3B8C6E`, ink `#1C1526`, muted `#6A6478`,
-tint `#EFEAF6`. Give each SVG its own arrowhead `<marker>`s. (This mirrors the PPTX
-diagram; keep them visually consistent.)
+**A. Inline SVG from slidekit** (the create-slides case, and any other diagram
+with arrows). Use `viewBox="0 0 1333 750"` with
+`preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%"`, matching
+the slide's real 13.333 x 7.5in canvas at slidekit's 100x scale. For colors, use
+the tokens in `../../../shared/brand.json` rather than hardcoding hex here; a
+prose palette drifts the moment brand.json changes and this doc does not. Give
+each SVG its own arrowhead `<marker>`s.
 
-**B. HTML atoms** (best for box layouts). These classes are available inside
-`.s-body`:
+**B. HTML atoms** (best for a preview that is NOT also a create-slide, a quick
+box-layout mockup with no matching PPTX to stay consistent with). These
+classes are available inside `.s-body`:
 - `.harness-frame` + `.harness-tab`: a dashed outer frame with a corner label.
 - `.row3` + `.hbox` (`<b>` title, `<span>` sub): a 3-up row of boxes.
 - `.innerlbl`: a small centered mono caption.

@@ -24,7 +24,7 @@ Do not do the work here, and do not force a stage nobody asked for.
 | "Piece the deck for this room" | `demo-studio:deck-flow-guide` |
 | "Build the net-new slides" | `demo-studio:create-slides` |
 | "Make the presenter guide" | `demo-studio:presenter-guide` |
-| "I know the demo, build the deck and guides" | flow guide, create slides, presenter guide |
+| "I know the demo, build the deck and guides" | `demo-studio:deck-flow-guide`, `demo-studio:create-slides`, `demo-studio:presenter-guide` |
 | Genuinely unclear | Ask which stage. Do not guess. |
 
 ## Sequencing
@@ -36,6 +36,13 @@ Build one artifact at a time and show it before starting the next.
 
 At each hinge, commit to a recommendation and get a small set of decisions locked
 before building. Do not present an exhaustive menu.
+
+## Design once, render many
+
+The create slides flow through three artifacts: the flow-guide previews, the
+PPTX, and the presenter guide. Build a net-new slide once with
+`demo-studio:create-slides` and keep it consistent across all three rather
+than redrawing it per artifact.
 
 ## Disciplines
 
