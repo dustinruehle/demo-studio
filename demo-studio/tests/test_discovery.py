@@ -55,6 +55,24 @@ class TestSchema(unittest.TestCase):
         errors = vc.validate(cfg, schema_discovery.SCHEMA)
         self.assertTrue(any("attribution" in e for e in errors), errors)
 
+    def test_a_null_allow_word_is_a_clean_schema_error_not_a_crash(self):
+        """The other two schemas (flow-guide, presenter-guide) already declare
+        allow_words/banned_terms as arrays of strings; this one did not, so a
+        null slipped past validation and blew up later inside guardrails with
+        a raw AttributeError on None.lower(). Declaring the field here lets
+        the schema walker catch it first, the same clean-message contract
+        every other bad field in this config honours."""
+        cfg = load_example()
+        cfg["allow_words"] = [None]
+        errors = vc.validate(cfg, schema_discovery.SCHEMA)
+        self.assertTrue(any("allow_words[0]" in e for e in errors), errors)
+
+    def test_a_null_banned_term_is_a_clean_schema_error(self):
+        cfg = load_example()
+        cfg["banned_terms"] = [None]
+        errors = vc.validate(cfg, schema_discovery.SCHEMA)
+        self.assertTrue(any("banned_terms[0]" in e for e in errors), errors)
+
 
 class TestSignalRules(unittest.TestCase):
     def test_ids_are_unique(self):
@@ -219,6 +237,14 @@ class TestRender(unittest.TestCase):
                 capture_output=True, text=True)
             self.assertEqual(proc.returncode, 0, proc.stderr)
             self.assertTrue(os.path.exists(out))
+
+    def test_cli_with_no_arguments_prints_usage_not_a_traceback(self):
+        proc = subprocess.run(
+            [sys.executable, os.path.join(ASSETS, "build_discovery.py")],
+            capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("usage", proc.stderr.lower())
+        self.assertNotIn("Traceback", proc.stderr)
 
 
 if __name__ == "__main__":

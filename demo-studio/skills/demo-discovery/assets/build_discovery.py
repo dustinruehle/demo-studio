@@ -106,6 +106,9 @@ def render(cfg):
 
 
 def main():
+    if len(sys.argv) < 2:
+        sys.stderr.write("usage: build_discovery.py CONFIG.json [OUT.md]\n")
+        sys.exit(1)
     cfg_path = sys.argv[1]
     out_path = sys.argv[2] if len(sys.argv) > 2 else "discovery.md"
     with open(cfg_path) as f:

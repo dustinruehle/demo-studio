@@ -31,5 +31,7 @@ SCHEMA = {
         }},
         "session": {"type": "object"},
         "fork": {"type": "object"},
+        "allow_words": {"type": "array", "items": {"type": "string"}},
+        "banned_terms": {"type": "array", "items": {"type": "string"}},
     },
 }
