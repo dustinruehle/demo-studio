@@ -1832,7 +1832,9 @@ _CARD = {
     "required": ["type", "seq", "title", "why", "traces"],
     "properties": {
         "type": {"type": "string", "enum": ["deck", "create"]},
-        "seq": {"type": "number"},
+        # seq and act.no are STRINGS in the shipped example ("01", "02"), not numbers.
+        # Accept both so the example validates and a numeric config still works.
+        "seq": {"type": ["number", "string"]},
         "title": {"type": "string", "minLength": 1},
         "why": {"type": "string", "minLength": 1},
         "traces": {"type": "string"},
