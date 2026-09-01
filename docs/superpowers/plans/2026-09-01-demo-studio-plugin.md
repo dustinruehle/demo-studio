@@ -214,7 +214,7 @@ Expected: 3.12 passes both tests. 3.9 **FAILS** `test_output_matches_baseline` w
   "version": "1.0.0",
   "description": "Demo Studio slide tooling",
   "scripts": {
-    "test": "node --test tests/"
+    "test": "node --test"
   },
   "dependencies": {
     "pptxgenjs": "^3.12.0"
@@ -2149,7 +2149,7 @@ test('colours are accepted with or without a leading hash', () => {
 - [ ] **Step 2: Run it to verify it fails**
 
 ```bash
-cd /Users/dan/code/skills/demo-studio && node --test tests/
+cd /Users/dan/code/skills/demo-studio && node --test
 ```
 
 Expected: FAIL, `Cannot find module '.../slidekit.js'`.
@@ -2313,7 +2313,7 @@ module.exports = {
 - [ ] **Step 4: Run the tests to verify they pass**
 
 ```bash
-cd /Users/dan/code/skills/demo-studio && node --test tests/
+cd /Users/dan/code/skills/demo-studio && node --test
 ```
 
 Expected: all 9 slidekit tests pass.
@@ -2432,7 +2432,7 @@ test('the PPTX backend strips the leading hash from colours', () => {
 - [ ] **Step 2: Run it to verify it fails**
 
 ```bash
-cd /Users/dan/code/skills/demo-studio && node --test tests/
+cd /Users/dan/code/skills/demo-studio && node --test
 ```
 
 Expected: FAIL, `kit.renderPptx is not a function`.
@@ -2506,7 +2506,7 @@ function renderPptx(slides, pres, palette) {
 - [ ] **Step 4: Run the tests to verify they pass**
 
 ```bash
-cd /Users/dan/code/skills/demo-studio && node --test tests/
+cd /Users/dan/code/skills/demo-studio && node --test
 ```
 
 Expected: all pass, in particular the two `PARITY` tests.
@@ -2804,7 +2804,7 @@ module.exports = { lintSlides, formatFindings };
 - [ ] **Step 4: Run the tests to verify they pass**
 
 ```bash
-cd /Users/dan/code/skills/demo-studio && node --test tests/
+cd /Users/dan/code/skills/demo-studio && node --test
 ```
 
 Expected: all pass.
@@ -3781,7 +3781,7 @@ cd /Users/dan/code/skills/demo-studio
 for PY in /usr/bin/python3 ~/.asdf/installs/python/3.12.12/bin/python3; do
   echo "== $PY"; $PY -m unittest discover -s tests -v || exit 1
 done
-node --test tests/
+node --test
 bash tests/test_pptx_tools.sh
 ```
 
