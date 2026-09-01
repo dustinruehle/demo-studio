@@ -354,27 +354,7 @@ def main():
     banned = cfg.get("banned_terms", ())
     guardrails.enforce(guardrails.check_tree(cfg, allowlist=allowlist, banned=banned))
 
-    discovery = None
-    if cfg.get("discovery"):
-        discovery_path = cfg["discovery"]
-        if not os.path.isabs(discovery_path):
-            discovery_path = os.path.join(os.path.dirname(cfg_path), discovery_path)
-        discovery = traces_mod.load_discovery(discovery_path)
-    found = traces_mod.check_traces(cfg, discovery)
-    # Two severities, deliberately. An id that does not resolve is an error: the
-    # author wrote D9 and meant something. A traces value with no id at all is a
-    # warning: the spec says free-text traces stays accepted so existing configs
-    # still build. Hard-failing both would break the shipped example, which uses
-    # prose traces, the moment anyone wires a discovery record in.
-    hard = [v for v in found if v.check == "unresolved-trace"]
-    soft = [v for v in found if v.check == "untraced"]
-    for v in soft:
-        sys.stderr.write("warning: %s: %s\n" % (v.field, v.detail))
-    if hard:
-        guardrails.enforce(hard)
-    if discovery is None:
-        sys.stderr.write(
-            "note: no 'discovery' field in the config, so traces-to was NOT checked\n")
+    traces_mod.resolve_and_report(cfg, cfg_path)
 
     open(out_path,"w").write(build(cfg))
     print("wrote", out_path, "with", len(cfg["slides"]), "slides",

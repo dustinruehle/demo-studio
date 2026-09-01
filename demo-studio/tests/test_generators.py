@@ -1,5 +1,6 @@
 """End to end: both generators build, on every supported interpreter, and their
 output still matches the captured baseline."""
+import json
 import os
 import subprocess
 import sys
@@ -47,6 +48,36 @@ class TestNoEmDashes(unittest.TestCase):
             with self.subTest(golden=golden):
                 with open(os.path.join(BASELINE, golden)) as f:
                     self.assertNotIn("—", f.read())
+
+
+class TestEmptyDiscoveryRecordIsNotSilentlySkipped(unittest.TestCase):
+    """A discovery.json that reads back as `{}` was still loaded: the config
+    named a real, readable file. The generator must report on it (an
+    unresolved id hard-fails), not treat an empty record the same as no
+    `discovery` field at all."""
+
+    def test_a_traces_id_against_an_empty_discovery_record_hard_fails(self):
+        base = os.path.join(ROOT, "skills", "deck-flow-guide", "assets")
+        with open(os.path.join(base, "examples", "flow_guide.example.json")) as f:
+            cfg = json.load(f)
+        cfg["acts"][0]["cards"][0]["traces"] = "D99"
+        with tempfile.TemporaryDirectory() as tmp:
+            discovery_path = os.path.join(tmp, "discovery.json")
+            with open(discovery_path, "w") as f:
+                f.write("{}")
+            cfg["discovery"] = discovery_path
+            cfg_path = os.path.join(tmp, "flow_guide.json")
+            with open(cfg_path, "w") as f:
+                json.dump(cfg, f)
+            out = os.path.join(tmp, "flow-guide.html")
+            proc = subprocess.run(
+                [sys.executable, os.path.join(base, "build_flow_guide.py"), cfg_path, out],
+                capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0,
+                                "an empty discovery record must not silently pass an unresolved id")
+            self.assertIn("unresolved-trace", proc.stderr)
+            self.assertIn("D99", proc.stderr)
+            self.assertFalse(os.path.exists(out), "nothing should be written on a hard failure")
 
 
 class TestInterpreterFloor(unittest.TestCase):

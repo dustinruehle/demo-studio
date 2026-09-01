@@ -77,6 +77,18 @@ class TestCheckTraces(unittest.TestCase):
         cfg = {"acts": [{"cards": [{"traces": "D9"}]}]}
         self.assertEqual(traces.check_traces(cfg, None), [])
 
+    def test_a_discovery_record_parsing_to_empty_dict_still_reports(self):
+        """A discovery.json that reads back as `{}` was still LOADED: the
+        config named a real file and it parsed. `if not discovery` treated
+        that the same as `discovery is None` (no field at all) and silently
+        skipped the check; the short-circuit must be identity with None, not
+        falsiness, or a technically-valid-but-empty discovery.json silently
+        disables the whole feature."""
+        cfg = {"acts": [{"cards": [{"traces": "D1"}]}]}
+        found = traces.check_traces(cfg, {})
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].check, "unresolved-trace")
+
     def test_discovery_with_no_signals_key_still_yields_unresolved_findings(self):
         # A legitimate empty record, not an error: nothing can resolve, so every
         # id in a traces field is correctly reported as unresolved.
