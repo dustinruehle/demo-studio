@@ -1,4 +1,4 @@
-# Demo Deck Studio: plugin restructure and capability upgrade
+# Demo Studio: plugin restructure and capability upgrade
 
 - **Date:** 2026-09-01
 - **Status:** approved, ready for implementation planning
@@ -6,9 +6,10 @@
 
 ## Context
 
-`demo-deck-studio` is a single skill shared from a colleague's Claude desktop
-install and extracted byte-identical to `/Users/dan/code/skills/demo-deck-studio`
-(14 files, 104K). It runs a five-stage pipeline from a discovery-call transcript to
+`demo-studio` is a single skill shared from a colleague's Claude desktop install
+and extracted byte-identical to `/Users/dan/code/skills/demo-studio`
+(14 files, 104K). It was shared as `demo-deck-studio` and renamed after
+extraction, so the baseline commit still carries the original name. It runs a five-stage pipeline from a discovery-call transcript to
 four deliverables: a demo build spec, a deck flow guide (HTML), the net-new slides
 (dark PPTX), and a presenter guide with a live-demo run-of-show (HTML).
 
@@ -89,7 +90,7 @@ every slide", cannot be visually QA'd at all outside the desktop app.
 ## 1. Structure
 
 ```
-demo-deck-studio/                    <- plugin root
+demo-studio/                         <- plugin root
   .claude-plugin/plugin.json
   shared/
     brand.json                       palette, fonts, act colors (ONE source)
@@ -99,7 +100,7 @@ demo-deck-studio/                    <- plugin root
     pptx_tools.sh                    locate pptx skill; preflight soffice/pdftoppm
     grounding.md                     provenance discipline, referenced by all five
   skills/
-    demo-deck-studio/                ROUTER
+    demo-studio/                     ROUTER
     demo-discovery/                  stages 1-4 -> discovery.json + discovery.md
     build-spec/                      stage 5    -> BUILD_SPEC.md
     deck-flow-guide/                 stage 6    -> flow-guide.html
@@ -112,7 +113,7 @@ lives inside one of them; it goes in `shared/`.
 
 | Skill | Owns | Input | Output |
 |---|---|---|---|
-| `demo-deck-studio` | entry-point map, sequencing, recommend-then-lock | anything | delegation |
+| `demo-studio` | entry-point map, sequencing, recommend-then-lock | anything | delegation |
 | `demo-discovery` | pipeline stages 1-4 | transcript(s) | `discovery.json`, `discovery.md` |
 | `build-spec` | `build-spec.md`, `build_spec_template.md` | discovery + locked decisions | `BUILD_SPEC.md` |
 | `deck-flow-guide` | `flow-guide-format.md`, `build_flow_guide.py` | existing deck + discovery | `flow-guide.html` |
@@ -123,7 +124,7 @@ lives inside one of them; it goes in `shared/`.
 
 The router is thin by design. It carries the entry-point map, stage sequencing, the
 recommend-then-lock hinge behavior, and handoff between stages. It **must not**
-restate worker content: it names them as `demo-deck-studio:build-spec` and so on.
+restate worker content: it names them as `demo-studio:build-spec` and so on.
 Per `writing-skills`, `@`-links force-load files and burn context, and duplicated
 workflow text gets followed in place of the real skill.
 
@@ -135,7 +136,7 @@ in a description follows the summary and skips the skill body.
 
 Draft triggers, to be tested for overlap:
 
-- **router**: a call transcript is shared; "the whole thing"; "demo deck studio";
+- **router**: a call transcript is shared; "the whole thing"; "demo studio";
   genuinely ambiguous entry.
 - **demo-discovery**: "read this transcript"; "which demo should we lead with";
   demo-fit; session design; who is in the room.
@@ -285,7 +286,7 @@ the pristine reference for diffing against the colleague's original.
 
 | From | To |
 |---|---|
-| `SKILL.md` | `skills/demo-deck-studio/SKILL.md`, reduced to the router |
+| `SKILL.md` | `skills/demo-studio/SKILL.md`, reduced to the router |
 | `references/pipeline.md` | router, minus the per-stage detail that moves to workers |
 | `references/grounding.md` | `shared/grounding.md` |
 | `references/build-spec.md` | `skills/build-spec/references/` |

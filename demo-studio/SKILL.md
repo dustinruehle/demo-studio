@@ -1,7 +1,7 @@
 ---
-name: demo-deck-studio
+name: demo-studio
 description: >-
-  Demo Deck Studio turns a customer/discovery call transcript into a full pre-sales
+  Demo Studio turns a customer/discovery call transcript into a full pre-sales
   enablement set: a demo build spec, a deck FLOW GUIDE (piece an existing deck plus
   net-new "create" slides with drilldown previews, reordered for the room), the
   net-new slides as a dark Google-Slides-safe PPTX, and a companion PRESENTER GUIDE
@@ -11,12 +11,11 @@ description: >-
   piece together a deck flow from existing slides; wants a presenter guide,
   teleprompter script, or speaker notes; wants to turn a demo runbook into a live
   walkthrough; or wants to spec a customer demo, even if they only ask for one piece
-  or start midway. Also trigger on "demo deck studio", "deck studio", "flow guide",
-  "presenter guide", "run of show", "create slides", and "build spec from this
-  transcript".
+  or start midway. Also trigger on "demo studio", "flow guide", "presenter guide",
+  "run of show", "create slides", and "build spec from this transcript".
 ---
 
-# Demo Deck Studio
+# Demo Studio
 
 A repeatable pipeline that takes a discovery transcript to a demo build spec, a deck
 flow guide, the net-new slides (PPTX), and a presenter guide with a live-demo
