@@ -36,12 +36,12 @@ picking one over a fused build.
 
 Signal ids are `D1`, `D2`, `D3`, in the order they surfaced. The accepted
 shape is `^D[1-9]\d*$`: no leading zeros. `D1` and `D01` would otherwise be
-two different strings naming the same intended signal, and Task 13 extracts
-ids from free prose with `\bD\d+\b`, so a stray leading zero would silently
-fail to match rather than being flagged as a typo. Do not renumber an id once
-other files reference it; append instead. `exercises` and every downstream
-`traces` field point at these ids, so an id is load-bearing the moment it
-ships, not just a label.
+two different strings naming the same intended signal, and the flow-guide and
+presenter-guide generators extract ids from free prose with `\bD\d+\b`, so a
+stray leading zero would silently fail to match rather than being flagged as
+a typo. Do not renumber an id once other files reference it; append instead.
+`exercises` and every downstream `traces` field point at these ids, so an id
+is load-bearing the moment it ships, not just a label.
 
 ## Grounded versus inferred
 
@@ -58,11 +58,13 @@ mechanical here:
 
 ## Traces-to, for later stages
 
-Task 13 makes the `traces` field on flow-guide cards and presenter-guide
-talking points resolve against the ids defined here. A card that traces to
-`D2` is asserting that discovery signal exists and says what the card claims
-it says; a card that traces to nothing, or to an id this file never defines,
-fails the build rather than shipping unnoticed.
+The `traces` field on flow-guide cards and presenter-guide talking points
+resolves against the ids defined here. A card that traces to `D2` is
+asserting that discovery signal exists and says what the card claims it says.
+A card that traces to an id this file never defines fails the build, naming
+the card and the missing id. A card that traces to nothing at all (free text,
+no `D` number) only warns, so an engagement's existing cards keep building
+while discovery adoption is gradual; it does not fail the build.
 
 ## Public-safe
 
@@ -71,3 +73,15 @@ customer name. `quote` may be verbatim, but only the part that describes the
 problem, never anything that identifies who said it beyond the role. If a
 call surfaced a real company name, a real person's name, or an internal
 hostname, it does not belong in this file at all, paraphrase around it.
+
+### `allow_words` and `banned_terms`
+
+Optional top-level fields, both arrays of strings, read by the same guardrail
+that scans every text field in this config:
+
+- `banned_terms`: identifiers that must never reach the output (a real
+  customer name, a codename, an internal host). Any match anywhere in the
+  config, case-insensitive and word-bounded, hard-fails the build.
+- `allow_words`: a documented escape for the AI-tell filter. If a listed word
+  ("robust", "actually", etc.) is doing legitimate technical work here, name it
+  in this list rather than rewording around a false positive.
