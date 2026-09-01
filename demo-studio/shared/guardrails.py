@@ -1,0 +1,83 @@
+# demo-studio/shared/guardrails.py
+"""Mechanical enforcement of the Demo Studio guardrails.
+
+The skill documents these as disciplines. Documented rules get forgotten under
+pressure, so they are checked here and hard-fail the build. Stdlib only,
+Python 3.9 compatible.
+"""
+import re
+from collections import namedtuple
+
+Violation = namedtuple("Violation", "check field detail")
+
+EM_DASH = "—"
+
+# Filler that reads as machine-written. Engineer-to-engineer register is terse.
+AI_TELLS = (
+    "seamless", "robust", "leverage", "genuinely",
+    "delve", "honestly", "actually",
+)
+
+
+class GuardrailError(Exception):
+    """Raised when a build would ship a guardrail violation."""
+
+
+def _word_re(word):
+    return re.compile(r"\b" + re.escape(word) + r"\b", re.IGNORECASE)
+
+
+_TELL_RES = tuple((w, _word_re(w)) for w in AI_TELLS)
+
+
+def check_text(value, field, allowlist=(), banned=()):
+    """Check one string. Returns a list of Violation, empty when clean."""
+    if not isinstance(value, str):
+        return []
+    out = []
+    if EM_DASH in value:
+        out.append(Violation("em-dash", field, "use a comma or restructure"))
+    permitted = {w.lower() for w in allowlist}
+    for word, pattern in _TELL_RES:
+        if word in permitted:
+            continue
+        if pattern.search(value):
+            out.append(Violation("ai-tell", field, word))
+    for term in banned:
+        if _word_re(term).search(value):
+            out.append(Violation("public-safe", field, term))
+    return out
+
+
+def check_tree(obj, allowlist=(), banned=(), _path=""):
+    """Walk a config tree, checking every string value.
+
+    Paths read like acts[0].cards[1].why so a failure points at the exact field
+    the author has to edit.
+    """
+    out = []
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            child = key if not _path else "%s.%s" % (_path, key)
+            out.extend(check_tree(value, allowlist, banned, child))
+    elif isinstance(obj, (list, tuple)):
+        for i, value in enumerate(obj):
+            out.extend(check_tree(value, allowlist, banned, "%s[%d]" % (_path, i)))
+    elif isinstance(obj, str):
+        out.extend(check_text(obj, _path or "<root>", allowlist, banned))
+    return out
+
+
+def report(violations):
+    """One violation per line, ordered as found."""
+    return "\n".join(
+        "  %-12s %-40s %s" % (v.check, v.field, v.detail) for v in violations
+    )
+
+
+def enforce(violations):
+    """Raise if anything was found. Call this before writing any output file."""
+    if violations:
+        raise GuardrailError(
+            "%d guardrail violation(s):\n%s" % (len(violations), report(violations))
+        )

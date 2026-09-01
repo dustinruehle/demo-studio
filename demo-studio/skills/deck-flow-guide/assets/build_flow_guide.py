@@ -18,6 +18,7 @@ import html, json, sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "..", "..", "shared"))
 import brand
+import guardrails
 
 def esc(s): return html.escape(str(s), quote=True)
 
@@ -252,6 +253,9 @@ if __name__ == "__main__":
     cfg_path = sys.argv[1] if len(sys.argv)>1 else os.path.join(here,"examples","flow_guide.example.json")
     out_path = sys.argv[2] if len(sys.argv)>2 else "flow-guide.html"
     cfg=json.load(open(cfg_path))
+    allowlist = cfg.get("allow_words", ())
+    banned = cfg.get("banned_terms", ())
+    guardrails.enforce(guardrails.check_tree(cfg, allowlist=allowlist, banned=banned))
     open(out_path,"w").write(build(cfg))
     n=sum(len(a["cards"]) for a in cfg["acts"])
     print("wrote", out_path, "with", len(cfg["acts"]), "acts and", n, "cards")
