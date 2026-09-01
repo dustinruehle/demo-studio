@@ -6,6 +6,7 @@ pressure, so they are checked here and hard-fail the build. Stdlib only,
 Python 3.9 compatible.
 """
 import re
+import zipfile
 from collections import namedtuple
 
 Violation = namedtuple("Violation", "check field detail")
@@ -85,3 +86,30 @@ def enforce(violations):
         raise GuardrailError(
             "%d guardrail violation(s):\n%s" % (len(violations), report(violations))
         )
+
+
+# Constructs Google Slides silently drops on import. A deck can look correct in
+# PowerPoint and arrive in Slides with its arrows missing, so check the file.
+_PPTX_BANNED = (
+    ("pptx-connector", re.compile(r"<p:cxnSp[ >]"),
+     "line connector, use a block arrow autoshape"),
+    ("pptx-connector", re.compile(r'prst="(straight|bent|curved)Connector'),
+     "connector geometry, use a block arrow autoshape"),
+    ("pptx-dash", re.compile(r"<a:prstDash[ >]"),
+     "dashed line, use a solid border"),
+)
+
+
+def check_pptx(path):
+    """Scan a generated .pptx for constructs that do not survive Google Slides."""
+    out = []
+    with zipfile.ZipFile(path) as z:
+        names = sorted(n for n in z.namelist()
+                       if re.match(r"ppt/slides/slide\d+\.xml$", n))
+        for name in names:
+            slide = re.sub(r".*/(slide\d+)\.xml$", r"\1", name)
+            xml = z.read(name).decode("utf-8", "replace")
+            for check, pattern, detail in _PPTX_BANNED:
+                if pattern.search(xml):
+                    out.append(Violation(check, slide, detail))
+    return out

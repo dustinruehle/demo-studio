@@ -1,7 +1,9 @@
 # demo-studio/tests/test_guardrails.py
 """Mechanical enforcement of the rules the skill previously only documented."""
 import os
+import subprocess
 import sys
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -101,6 +103,39 @@ class TestEnforce(unittest.TestCase):
     def test_report_is_one_line_per_violation(self):
         found = g.check_tree({"a": "x — y", "b": "seamless"})
         self.assertEqual(len(g.report(found).strip().splitlines()), 2)
+
+
+class TestPptxChecks(unittest.TestCase):
+    FIXTURES = os.path.join(HERE, "fixtures", "make_bad_pptx.py")
+
+    def _build(self, kind, path):
+        subprocess.run([sys.executable, self.FIXTURES, kind, path], check=True)
+
+    def test_flags_a_line_connector(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.pptx")
+            self._build("bad", path)
+            found = g.check_pptx(path)
+            checks = {v.check for v in found}
+            self.assertIn("pptx-connector", checks)
+
+    def test_flags_a_dashed_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.pptx")
+            self._build("bad", path)
+            self.assertIn("pptx-dash", {v.check for v in g.check_pptx(path)})
+
+    def test_names_the_offending_slide(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.pptx")
+            self._build("bad", path)
+            self.assertTrue(all("slide1" in v.field for v in g.check_pptx(path)))
+
+    def test_a_clean_deck_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "ok.pptx")
+            self._build("clean", path)
+            self.assertEqual(g.check_pptx(path), [])
 
 
 if __name__ == "__main__":
