@@ -15,6 +15,9 @@ the available mockup classes (.slide, .harness-frame, .tiles, .stack-two,
 .beats, etc.) are documented in references/flow-guide-format.md.
 """
 import html, json, sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "..", "..", "..", "shared"))
+import brand
 
 def esc(s): return html.escape(str(s), quote=True)
 
@@ -111,13 +114,7 @@ def build(cfg):
 </body>
 </html>"""
 
-CSS = r''':root{
-    --indigo:#4C2889; --indigo-ink:#2A1650; --indigo-tint:#EFEAF6;
-    --ink:#1C1526; --paper:#F6F4FA; --card:#FFFFFF;
-    --amber:#E0A100; --green:#3B8C6E; --green-tint:#E8F2ED; --green-ink:#245A44;
-    --coral:#E2664A; --coral-tint:#FBEDE8; --coral-ink:#B24326;
-    --muted:#6A6478; --line:#E4E0EC;
-  }
+CSS = brand.root_block("flow_guide") + r'''
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;}
@@ -176,12 +173,12 @@ CSS = r''':root{
   .new-head .title{margin:0;flex:1;}
   .card.new .line .lbl.why{color:var(--coral-ink);}
 
-  details.drill{margin-top:10px;border-top:1px dashed #E7B8A8;padding-top:10px;}
+  details.drill{margin-top:10px;border-top:1px dashed var(--drill-line);padding-top:10px;}
   details.drill summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--coral-ink);user-select:none;}
   details.drill summary::-webkit-details-marker{display:none;}
   details.drill summary::before{content:"\25B8";transition:transform .15s ease;font-size:11px;}
   details.drill[open] summary::before{transform:rotate(90deg);}
-  details.drill summary:hover{color:#8f351d;}
+  details.drill summary:hover{color:var(--drill-hover);}
   .drillnote{font-size:12px;color:var(--muted);margin:4px 0 12px 18px;}
 
   .slide{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 26px -14px rgba(28,21,38,.28);aspect-ratio:16/9;padding:22px 26px;display:flex;flex-direction:column;overflow:hidden;}
@@ -193,7 +190,7 @@ CSS = r''':root{
   .harness-frame{border:1.5px dashed var(--indigo);border-radius:9px;padding:12px;position:relative;}
   .harness-tab{position:absolute;top:-9px;left:12px;background:#fff;padding:0 7px;font-family:"JetBrains Mono",monospace;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);}
   .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
-  .hbox{background:var(--indigo-tint);border:1px solid #D8CDE9;border-radius:7px;padding:9px 8px;text-align:center;}
+  .hbox{background:var(--indigo-tint);border:1px solid var(--hbox-border);border-radius:7px;padding:9px 8px;text-align:center;}
   .hbox b{display:block;font-size:13px;color:var(--indigo-ink);}
   .hbox span{font-size:10.5px;color:var(--muted);}
   .innerlbl{font-family:"JetBrains Mono",monospace;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center;margin:2px 0 0;}
