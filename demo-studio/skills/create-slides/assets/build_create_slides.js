@@ -19,7 +19,7 @@ const P = brand.surfaces.pptx;
 const nohash = (c) => String(c).replace(/^#/, '');
 const palette = {
   bg: nohash(P.bg), panel: nohash(P.panel), border: nohash(P.border),
-  txt: nohash(P.txt), mut: nohash(P.mut),
+  txt: nohash(P.txt), mut: nohash(P.mut), indigo: nohash(P.indigo),
   heading: brand.fonts.heading, body: brand.fonts.body, mono: brand.fonts.mono,
 };
 const IND = nohash(P.indigo), CORAL = nohash(P.coral), GREEN = nohash(P.green);
@@ -39,7 +39,7 @@ const slides = [
 ];
 
 const { lintSlides, formatFindings } = require('./lint_slides');
-const findings = lintSlides(slides);
+const findings = lintSlides(slides, palette);
 if (findings.length) {
   console.error(`slide lint failed with ${findings.length} finding(s):`);
   console.error(formatFindings(findings));
