@@ -1344,7 +1344,7 @@ import guardrails
 cd /Users/dan/code/skills/demo-studio
 PY=~/.asdf/installs/python/3.12.12/bin/python3
 $PY - <<'EOF'
-import json, pathlib
+import json, os, pathlib
 p = pathlib.Path("skills/deck-flow-guide/assets/examples/flow_guide.example.json")
 cfg = json.loads(p.read_text())
 cfg["acts"][0]["cards"][0]["why"] = "a seamless — story"
@@ -3498,7 +3498,11 @@ $PY - <<'EOF'
 import json, pathlib
 p = pathlib.Path("skills/deck-flow-guide/assets/examples/flow_guide.example.json")
 cfg = json.loads(p.read_text())
-cfg["discovery"] = "../../../demo-discovery/assets/examples/discovery.example.json"
+# Absolute, because this config is written to /tmp: a relative discovery path
+# would resolve against /tmp and raise FileNotFoundError instead of the
+# unresolved-trace failure this step is meant to demonstrate.
+cfg["discovery"] = os.path.abspath(
+    "skills/demo-discovery/assets/examples/discovery.example.json")
 cfg["acts"][0]["cards"][0]["traces"] = "D99"
 pathlib.Path("/tmp/traced.json").write_text(json.dumps(cfg))
 EOF
