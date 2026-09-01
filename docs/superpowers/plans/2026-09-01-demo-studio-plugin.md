@@ -2551,14 +2551,15 @@ const kit = require('./slidekit');
 const brand = JSON.parse(fs.readFileSync(
   path.join(__dirname, '..', '..', '..', 'shared', 'brand.json'), 'utf8'));
 const P = brand.surfaces.pptx;
+// brand.json stores hex with a leading '#', pptxgenjs and the slide lint want it
+// without. Normalise once, here, rather than at every call site. This must be
+// declared BEFORE palette, which calls it: const has a temporal dead zone.
+const nohash = (c) => String(c).replace(/^#/, '');
 const palette = {
   bg: nohash(P.bg), panel: nohash(P.panel), border: nohash(P.border),
   txt: nohash(P.txt), mut: nohash(P.mut),
   heading: brand.fonts.heading, body: brand.fonts.body, mono: brand.fonts.mono,
 };
-// brand.json stores hex with a leading '#', pptxgenjs and the slide lint want it
-// without. Normalise once, here, rather than at every call site.
-const nohash = (c) => String(c).replace(/^#/, '');
 const IND = nohash(P.indigo), CORAL = nohash(P.coral), GREEN = nohash(P.green);
 
 const slides = [
