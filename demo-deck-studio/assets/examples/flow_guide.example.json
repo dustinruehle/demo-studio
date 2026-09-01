@@ -1,0 +1,57 @@
+{
+  "tab_title": "Setup Flow Guide",
+  "eyebrow": "Deck setup \u00b7 flow",
+  "title": "Setup Flow Guide",
+  "subtitle": "Cherry-picked and re-ordered deck slides for the pre-demo setup, tuned for a technical room that includes people new to the product. Runs into the live demo.",
+  "chips": [
+    ["Audience", "technical \u00b7 mixed familiarity"],
+    ["Arc", "frame \u2192 prime \u2192 prove \u2192 hand off"],
+    ["Time", "~15 min"],
+    ["Then", "live demo"]
+  ],
+  "legend": {
+    "deck_label": "From deck",
+    "deck_text": "use the exact slide named on the card",
+    "create_label": "Create",
+    "create_text": "doesn't exist yet \u00b7 open the drilldown for the mockup"
+  },
+  "acts": [
+    {
+      "no": "Act 1", "title": "Frame", "purpose": "Why we're here. Establish shared ground fast.", "time": "~3 min",
+      "cards": [
+        {
+          "type": "deck", "seq": "01", "title": "The problem",
+          "deckid_label": "Pull this slide",
+          "deckid_quote": "\"<verbatim slide headline>\"",
+          "deckid_pg": "&middot; \u00a701 The problem \u00b7 p.4",
+          "why": "Opens on ground they already believe, so the <b>expensive part lands as news</b>.",
+          "traces": "Discovery call: <a short attributed quote>."
+        }
+      ]
+    },
+    {
+      "no": "Act 2", "title": "Mental model", "purpose": "The one frame the whole session hangs on.", "time": "~4 min",
+      "cards": [
+        {
+          "type": "create", "seq": "04", "title": "Your stack today",
+          "why": "Turns the generic picture into <b>their</b> picture, so nobody has to translate.",
+          "traces": "Discovery: they build with Framework A, Framework B, and custom code.",
+          "preview": {
+            "eyebrow": "Create \u00b7 Slide 04",
+            "title": "Your stack today",
+            "sub": "The frameworks you already build with, and the gap underneath them.",
+            "body": "<div class=\"harness-frame\"><span class=\"harness-tab\">Outer harness \u00b7 missing today</span><div class=\"row3\"><div class=\"hbox\"><b>Framework A</b><span>graph agents</span></div><div class=\"hbox\"><b>Framework B</b><span>agent SDK</span></div><div class=\"hbox\"><b>Custom</b><span>hand-rolled</span></div></div><div class=\"innerlbl\">Inner harness \u00b7 your frameworks</div><div class=\"gap\"><span class=\"gl\">The gap you fill by hand</span><span class=\"gt\">state \u00b7 retries \u00b7 HITL \u00b7 no replay</span></div></div>"
+          }
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "title": "If the clock is tight",
+    "cols": [
+      ["The spine (keep these)", "go", "<span class=\"path\">01 \u2192 04 \u2192 demo.</span> The load-bearing slides."],
+      ["Drop first", "warn", "The nice-to-have context slides. Fold into talk track instead."],
+      ["Room already knows the product", "", "Skip the primer act entirely."]
+    ]
+  }
+}

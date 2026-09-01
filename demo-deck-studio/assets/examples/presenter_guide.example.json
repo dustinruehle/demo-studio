@@ -1,0 +1,101 @@
+{
+  "tab_title": "Presenter Guide \u00b7 <Company>",
+  "nav_title": "Presenter Guide",
+  "nav_sub": "<Company> \u00b7 <Deck> \u00b7 3 slides",
+  "eyebrow": "Companion presenter guide",
+  "title": "<Deck title> \u00b7 <Company>",
+  "subtitle": "Slide-by-slide talking points, a teleprompter script, and questions to ask the room. Tuned for the specific audience, running into the live demo.",
+  "chips": [
+    ["Presenters", "SA + AE"],
+    ["Room", "<key names + roles>"],
+    ["Flow", "frame \u2192 prime \u2192 prove \u2192 hand off \u2192 demo"],
+    ["Time", "~18 min + demo"]
+  ],
+  "legend": [
+    ["Talking points", "what to land"],
+    ["Say", "read it like a teleprompter, one line per breath"],
+    ["Ask & expect", "questions to pose, and ones they will pose back"]
+  ],
+  "acts": {
+    "Open":  ["Open", "#1C1526"],
+    "Frame": ["Act 1 \u00b7 Frame", "#B07A00"],
+    "Model": ["Act 2 \u00b7 Mental model", "#4C2889"],
+    "Prove": ["Act 4 \u00b7 Prove", "#C0503A"],
+    "Demo":  ["Demo", "#1C1526"]
+  },
+  "slides": [
+    {
+      "num": 1, "act": "Open", "short": "Title", "title": "<Title>",
+      "onscreen": "Title slide. One-line positioning statement.",
+      "points": ["Set the frame in one sentence.", "Name their world.", "Keep it short, get to value."],
+      "say": ["Thanks for the time, and for bringing the team.", "Quick framing before slides, then a live demo.", "Stop me anytime, this is a conversation."],
+      "ask": ["Who here has used <product> before? (calibrates depth)", "Anything specific to cover today?"]
+    },
+    {
+      "num": 2, "act": "Frame", "short": "The problem", "title": "<Problem framing>",
+      "onscreen": "The tension the rest of the session resolves.",
+      "points": ["Agree with their reality first.", "Name the specific cost.", "This is common ground."],
+      "say": ["You know this better than we do.", "The easy part is the prototype.", "The interesting question is whether it survives production."],
+      "ask": ["Where does it start hurting when you go to production?"]
+    },
+    {
+      "num": 3, "act": "Demo", "short": "Live demo", "title": "Live demo: see it run",
+      "onscreen": "Transition slide.",
+      "points": ["Stop presenting, start clicking.", "Let the dashboard carry it.", "Leave time for Q&A."],
+      "say": ["Let us stop looking at slides and run it.", "Interrupt me the moment something raises a question."],
+      "ask": ["(after) Where does this plug in first?", "(after) Set up a technical deep dive?"]
+    }
+  ],
+  "demo": {
+    "nav_divider": "Live demo \u00b7 run of show",
+    "banner": { "title": "<Demo name>", "text": "Beats from cold start to composition. Default posture: mock models, local, no keys. You only Ctrl-C an agent worker for the durability beats." },
+    "talk_track": "There are two layers of durability here. The outer harness is the business process. The inner harnesses are the agents themselves. In mock mode we stub only the model, never the integration, so everything you see is real except the words the model would have said.",
+    "lanes": [
+      ["PLATFORM lane", "plat", "Server-side truth. Survives a worker dying. Point here to prove durability."],
+      ["WORKER lane", "work", "Live worker state. Goes OFFLINE when that worker is down, which dims the pipeline."],
+      ["Pipeline", "", "The ordered steps of the run."],
+      ["Activity feed", "", "Each agent's model and tool calls as they land as Activities."]
+    ],
+    "termmap": [
+      ["0", "cmd preflight", "no (returns)", "&mdash;"],
+      ["1", "cmd server", "yes", "never"],
+      ["2", "cmd worker-a", "yes", "<span class=\"kill\">Beat 2</span>"]
+    ],
+    "smoke": "<b>Smoke check:</b> click <b>Start happy</b>. Within a second or two the steps go green. If that works, you are fully up.",
+    "beats": [
+      {
+        "id": "d1", "badge": "Beat 1", "title": "Happy path", "tag": "baseline", "accent": "indigo",
+        "rows": [
+          ["Goal", "goal", "single", "One durable run completes with every call recorded."],
+          ["Do", "do", "ol", ["Click <b>Start happy</b>."]],
+          ["Watch", "watch", "ul", ["Steps go green in order.", "<b>PLATFORM</b> goes <code>RUNNING &rarr; COMPLETED</code>."]],
+          ["Why", "why", "single", "No queue, no glue; every call is a recorded Activity."]
+        ]
+      },
+      {
+        "id": "d2", "badge": "Beat 2", "title": "Money moment", "tag": "kill worker", "accent": "coral",
+        "term": "&#9000; <b>Ctrl-C</b> the worker, leave it stopped. Restart later with <code>cmd worker-a</code>.",
+        "rows": [
+          ["Goal", "goal", "single", "Kill a worker mid-flight; the run survives and resumes."],
+          ["Do", "do", "ol", ["Ctrl-C the worker.", "Start the run.", "Restart the worker."]],
+          ["Watch", "watch", "ul", ["<b>WORKER</b> flips OFFLINE and the pipeline dims; <b>PLATFORM</b> stays RUNNING.", "After restart it resumes exactly where it was."]],
+          ["Why", "why", "single", "We killed the worker and lost nothing. Earlier steps are not re-run."]
+        ],
+        "note": "<b>Timing:</b> take the worker down first, then start the run, so you are never racing the clock."
+      }
+    ],
+    "scenarios": [
+      ["Start happy", "approve", "full green run"],
+      ["Start refer", "refer", "durability + human gate"]
+    ],
+    "switches": [
+      ["Mock to real", "export MODEL_MODE=real\nexport API_KEY=..."],
+      ["Local to Cloud", "export ADDRESS=<ns>.tmprl.cloud:7233\nexport NAMESPACE=<ns>"]
+    ],
+    "switch_note": "Unset means local dev server and mock models. Restart the affected worker after changing env.",
+    "troubleshooting": [
+      ["Worker won't start", "run the preflight; it re-adds the integration extras and verifies imports."],
+      ["Reset", "Ctrl-C all terminals; local dev server state is in-memory."]
+    ]
+  }
+}
