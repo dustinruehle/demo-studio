@@ -8,9 +8,9 @@ Produced by `assets/build_flow_guide.py CONFIG.json OUT.html`. The styling is fi
 
 A top-down document of ACTS, each containing CARDS. A card is either:
 
-- a **deck** card — "pull this existing slide", named explicitly so the presenter
+- a **deck** card: "pull this existing slide", named explicitly so the presenter
   can find it, or
-- a **create** card — a slide that does not exist yet, with a **collapsible
+- a **create** card: a slide that does not exist yet, with a **collapsible
   preview mockup**, a one-line **why**, and a **traces to** discovery link.
 
 The point is to reorder and piece a deck for THIS room, showing exactly what to
@@ -26,7 +26,7 @@ Top level: `tab_title`, `eyebrow`, `title`, `subtitle`, `chips` (list of
 Each act: `no`, `title`, `purpose`, `time`, `cards` (list).
 
 **deck card:** `type:"deck"`, `seq`, `title`, `deckid_label` (default "Pull this
-slide"), `deckid_quote` (the verbatim slide headline in quotes — this is how the
+slide"), `deckid_quote` (the verbatim slide headline in quotes: this is how the
 presenter locates it), `deckid_pg` (section + page), `why`, `traces`, `src_label`.
 
 **create card:** `type:"create"`, `seq`, `title`, `why`, `traces`, `src_label`
@@ -48,14 +48,14 @@ diagram; keep them visually consistent.)
 
 **B. HTML atoms** (best for box layouts). These classes are available inside
 `.s-body`:
-- `.harness-frame` + `.harness-tab` — a dashed outer frame with a corner label.
-- `.row3` + `.hbox` (`<b>` title, `<span>` sub) — a 3-up row of boxes.
-- `.innerlbl` — a small centered mono caption.
-- `.gap` + `.gl` (label) + `.gt` (text) — a coral "gap" band.
-- `.tiles` + `.tile` (`<b>`, `<span>`) — a 2x2 tile grid.
-- `.stack-two` + `.agentbox` — two boxes side by side.
-- `.conn` + `.backbone` (`<b>`, `<span>`) + `.expose` — connectors into a hero bar.
-- `.beats` + `.beat-r` (`.bn` number, `<b>`, `<span>`) — numbered beat rows.
+- `.harness-frame` + `.harness-tab`: a dashed outer frame with a corner label.
+- `.row3` + `.hbox` (`<b>` title, `<span>` sub): a 3-up row of boxes.
+- `.innerlbl`: a small centered mono caption.
+- `.gap` + `.gl` (label) + `.gt` (text): a coral "gap" band.
+- `.tiles` + `.tile` (`<b>`, `<span>`): a 2x2 tile grid.
+- `.stack-two` + `.agentbox`: two boxes side by side.
+- `.conn` + `.backbone` (`<b>`, `<span>`) + `.expose`: connectors into a hero bar.
+- `.beats` + `.beat-r` (`.bn` number, `<b>`, `<span>`): numbered beat rows.
 
 Keep preview content light so it fits the 16:9 frame without clipping.
 

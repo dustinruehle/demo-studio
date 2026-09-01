@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-build_flow_guide.py — render a deck FLOW GUIDE from a JSON config: acts of
+build_flow_guide.py: render a deck FLOW GUIDE from a JSON config: acts of
 cards, each card either a "deck" card (pull an existing slide, named explicitly)
 or a "create" card (a slide that does not exist yet, with a collapsible preview
 mockup). This is the "piece the deck from existing + net-new, with drilldowns"
@@ -10,7 +10,7 @@ Usage:
     python3 build_flow_guide.py CONFIG.json OUT.html
 
 The styling is fixed (it is the reusable format). Only content comes from JSON.
-Card previews (create cards) carry a raw SVG/HTML mockup you author per slide —
+Card previews (create cards) carry a raw SVG/HTML mockup you author per slide;
 the available mockup classes (.slide, .harness-frame, .tiles, .stack-two,
 .beats, etc.) are documented in references/flow-guide-format.md.
 """

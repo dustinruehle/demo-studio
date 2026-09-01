@@ -48,5 +48,5 @@ template, pattern->slug map, verified version pins).
 
 The **two-lane dashboard** is the demo's proof device: one lane from durable
 server-side state (survives a worker dying), one from a live worker query (goes
-OFFLINE and dims the pipeline). Kill a worker, watch the split. Keep it dumb — no
+OFFLINE and dims the pipeline). Kill a worker, watch the split. Keep it dumb: no
 business logic in the dashboard.

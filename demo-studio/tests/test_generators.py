@@ -11,27 +11,28 @@ ROOT = os.path.dirname(HERE)
 BASELINE = os.path.join(HERE, "baseline")
 
 GENERATORS = [
-    ("build_flow_guide.py", "flow_guide.example.json", "flow-guide.html"),
-    ("build_presenter_guide.py", "presenter_guide.example.json", "presenter-guide.html"),
+    ("deck-flow-guide", "build_flow_guide.py", "flow_guide.example.json", "flow-guide.html"),
+    ("presenter-guide", "build_presenter_guide.py", "presenter_guide.example.json", "presenter-guide.html"),
 ]
 
 
-def run_generator(script, config, out):
+def run_generator(skill, script, config, out):
     """Run a generator. Returns (returncode, stdout, stderr)."""
+    base = os.path.join(ROOT, "skills", skill, "assets")
     proc = subprocess.run(
-        [sys.executable, os.path.join(ROOT, "assets", script),
-         os.path.join(ROOT, "assets", "examples", config), out],
+        [sys.executable, os.path.join(base, script),
+         os.path.join(base, "examples", config), out],
         capture_output=True, text=True)
     return proc.returncode, proc.stdout, proc.stderr
 
 
 class TestGeneratorsMatchBaseline(unittest.TestCase):
     def test_output_matches_baseline(self):
-        for script, config, golden in GENERATORS:
+        for skill, script, config, golden in GENERATORS:
             with self.subTest(script=script):
                 with tempfile.TemporaryDirectory() as tmp:
                     out = os.path.join(tmp, golden)
-                    rc, _, err = run_generator(script, config, out)
+                    rc, _, err = run_generator(skill, script, config, out)
                     self.assertEqual(rc, 0, f"{script} failed: {err}")
                     with open(out) as f:
                         got = f.read()
@@ -42,7 +43,7 @@ class TestGeneratorsMatchBaseline(unittest.TestCase):
 
 class TestNoEmDashes(unittest.TestCase):
     def test_generated_output_has_no_em_dashes(self):
-        for _, _, golden in GENERATORS:
+        for _, _, _, golden in GENERATORS:
             with self.subTest(golden=golden):
                 with open(os.path.join(BASELINE, golden)) as f:
                     self.assertNotIn("—", f.read())
@@ -58,10 +59,11 @@ class TestInterpreterFloor(unittest.TestCase):
     def test_generators_compile_on_every_interpreter(self):
         self.assertTrue(self.INTERPRETERS, "no interpreters found to test")
         for interp in self.INTERPRETERS:
-            for script, _, _ in GENERATORS:
+            for skill, script, _, _ in GENERATORS:
                 with self.subTest(interp=interp, script=script):
                     proc = subprocess.run(
-                        [interp, "-m", "py_compile", os.path.join(ROOT, "assets", script)],
+                        [interp, "-m", "py_compile",
+                         os.path.join(ROOT, "skills", skill, "assets", script)],
                         capture_output=True, text=True)
                     self.assertEqual(proc.returncode, 0,
                                      f"{script} does not compile on {interp}: {proc.stderr}")

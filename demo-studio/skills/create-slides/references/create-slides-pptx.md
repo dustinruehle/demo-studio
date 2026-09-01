@@ -7,13 +7,13 @@ bespoke, so this is code, not JSON).
 ## Hard rules (do not break)
 
 - **Google-Slides-safe:** block-arrow autoshapes only (`rightArrow`, `downArrow`,
-  `leftRightArrow`). NEVER line connectors or dashed lines (`prstDash`) — Google
+  `leftRightArrow`). NEVER line connectors or dashed lines (`prstDash`): Google
   Slides silently drops them on import. Solid borders only. Hex without `#`.
 - **Dark + readable:** dark background, lightened accents (the palette in the
   template). Check contrast in the render.
 - **No em dashes** in any slide text.
 - **Brand fonts:** Fraunces (headings), IBM Plex Sans (body), JetBrains Mono
-  (labels). The render machine may lack them and show fallbacks — that is fine for
+  (labels). The render machine may lack them and show fallbacks: that is fine for
   layout QA; the file names them correctly.
 
 ## Helpers (in the template)
@@ -36,7 +36,7 @@ pdftoppm -jpeg -r 150 create-slides.pdf slide
 Then VIEW every `slide-N.jpg`. Look for: label/arrow collisions, text touching a
 frame border, low contrast, clipped content, wrapped titles. Fix coordinates and
 re-render until each slide is clean. (In this codebase the classic bug was gap
-labels colliding with a side frame — widen the gap or recenter the label.)
+labels colliding with a side frame: widen the gap or recenter the label.)
 
 ## Placement markers
 

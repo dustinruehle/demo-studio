@@ -1,4 +1,4 @@
-# Build spec — <Demo name>
+# Build spec: <Demo name>
 
 **Audience:** the coding agent that will build this.
 **Goal:** <one paragraph: the durable business process (outer harness) orchestrating
@@ -18,13 +18,13 @@ dev server, no keys.
 Do not declare done until the whole gate is green.
 
 ## 1. Skills to use (reference wins)
-- <skill/reference #1 — read before X>
-- <skill/reference #2 — read before Y>
+- <skill/reference #1: read before X>
+- <skill/reference #2: read before Y>
 State: if any API here differs from the reference, THE REFERENCE WINS. Mark
 anything unverified as "verify against <reference>".
 
 ## 2. Reference repositories (structure and idiom)
-- <repo/path> — <what to mine, which beats>
+- <repo/path>: <what to mine, which beats>
 Caveat: read for structure; API specifics come from §1, not the samples.
 
 ## 3. What it proves (throughline)
@@ -41,12 +41,12 @@ commands first; print a version table; verify pre-release imports; note one-time
 downloads. Exit non-zero if unsatisfiable.
 
 ## 5. The beats (each runnable three ways: dashboard button, beat runner, manual)
-- Beat 1 — happy path — <patterns/refs> — <proves>
-- Beat 2 — durability / money moment (kill a worker) — <proves>
-- Beat 3 — <onboarding / framework-native> — <proves>
-- Beat 4 — retry vs fail-fast — <proves>
-- Beat 5 — human gate + saga — <proves>
-- Beat 6 — composition + history (talk + show)
+- Beat 1: happy path: <patterns/refs>: <proves>
+- Beat 2: durability / money moment (kill a worker): <proves>
+- Beat 3: <onboarding / framework-native>: <proves>
+- Beat 4: retry vs fail-fast: <proves>
+- Beat 5: human gate + saga: <proves>
+- Beat 6: composition + history (talk + show)
 
 ## 6. Domain model
 <neutral vocabulary; only a reference id crosses task queues; mock/real per

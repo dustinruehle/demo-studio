@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-build_presenter_guide.py — render a companion presenter guide (side nav +
+build_presenter_guide.py: render a companion presenter guide (side nav +
 per-slide Talking points / Say-teleprompter / Ask, plus an optional live-demo
 run-of-show) from a JSON config.
 
@@ -8,7 +8,7 @@ Usage:
     python3 build_presenter_guide.py CONFIG.json OUT.html
 
 The styling (navigation, 3-column layout, teleprompter cards, demo beat cards)
-is fixed and must not be changed — it is the reusable format. Only the CONTENT
+is fixed and must not be changed; it is the reusable format. Only the CONTENT
 comes from the JSON. See assets/examples/presenter_guide.example.json for the
 schema by example, and references/presenter-guide-format.md for the field guide.
 """

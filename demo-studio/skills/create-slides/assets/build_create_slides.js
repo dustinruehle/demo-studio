@@ -1,14 +1,14 @@
 /*
-  build_create_slides.js — generate the NET-NEW ("create") slides as a dark-mode
+  build_create_slides.js: generate the NET-NEW ("create") slides as a dark-mode
   PPTX that drops into an aggregate deck.
 
   This is a TEMPLATE you edit per engagement: keep the palette + helpers, then
   author one builder block per slide. Slide diagrams are bespoke, so this is code,
   not JSON.
 
-  HARD RULES (Google-Slides-safe + brand — do not break):
+  HARD RULES (Google-Slides-safe + brand, do not break):
     - Block-arrow autoshapes only (rightArrow / downArrow / leftRightArrow).
-      NEVER use line connectors or dashed lines (prstDash) — Google Slides
+      NEVER use line connectors or dashed lines (prstDash): Google Slides
       silently drops them on import.
     - Solid borders only. Hex colors WITHOUT the leading '#'.
     - No em dashes in any text. Use commas or restructure.
@@ -66,7 +66,7 @@ function label(s, x,y,w, text, color, size, align){
   s.addText(text,{x,y,w,h:0.28,fontFace:FM,fontSize:size||9,color:color||FAINT,align:align||"center",bold:true,charSpacing:1,margin:0});
 }
 
-/* ===================== EXAMPLE A — "boxes + gap" layout ===================== */
+/* ===================== EXAMPLE A: "boxes + gap" layout ===================== */
 /* Pattern: an outer frame (something "missing"), a row of inner boxes, a gap band. */
 {
   const s = slideBase("SETUP FLOW \u00b7 04", "Your stack today",
@@ -85,7 +85,7 @@ function label(s, x,y,w, text, color, size, align){
     {text:"state   \u00b7   retries   \u00b7   HITL   \u00b7   no replay",options:{fontFace:FB,fontSize:15,color:TXT}}]});
 }
 
-/* ===================== EXAMPLE B — diagram with block arrows ===================== */
+/* ===================== EXAMPLE B: diagram with block arrows ===================== */
 /* Pattern: two side frames, inner boxes, and block-arrow relationships between. */
 {
   const s = slideBase("SETUP FLOW \u00b7 07", "How it fits together", "Primitives, and how they connect.");
