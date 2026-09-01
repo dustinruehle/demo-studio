@@ -73,6 +73,35 @@ class TestPublicSafe(unittest.TestCase):
         self.assertEqual(g.check_tree({"a": "Contosoville"}, banned=("Contoso",)), [])
 
 
+class TestMetaKeysNotSelfFlagged(unittest.TestCase):
+    """Drives check_tree through the REAL generator call shape: banned_terms
+    and allow_words are read off the same config object they are then used to
+    walk, so both lists are also still keys inside that config. Without a
+    skip, a banned term flags itself the moment it is declared, and the
+    public-safe gate becomes unusable the moment anyone turns it on."""
+
+    def test_banned_terms_key_does_not_flag_its_own_declaration(self):
+        cfg = {"why": "as told by Contoso", "banned_terms": ["Contoso"]}
+        found = g.check_tree(cfg, allowlist=cfg.get("allow_words", ()),
+                              banned=cfg.get("banned_terms", ()))
+        self.assertEqual([v.field for v in found], ["why"])
+
+    def test_a_genuine_hit_elsewhere_in_the_config_still_fails(self):
+        cfg = {"acts": [{"cards": [{"why": "Contoso told us this"}]}],
+               "banned_terms": ["Contoso"]}
+        found = g.check_tree(cfg, allowlist=cfg.get("allow_words", ()),
+                              banned=cfg.get("banned_terms", ()))
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].check, "public-safe")
+        self.assertEqual(found[0].field, "acts[0].cards[0].why")
+
+    def test_allow_words_key_does_not_flag_its_own_declaration(self):
+        cfg = {"note": "a robust retry policy", "allow_words": ["robust"]}
+        found = g.check_tree(cfg, allowlist=cfg.get("allow_words", ()),
+                              banned=cfg.get("banned_terms", ()))
+        self.assertEqual(found, [])
+
+
 class TestTreeWalk(unittest.TestCase):
     def test_builds_dotted_paths_through_dicts_and_lists(self):
         cfg = {"acts": [{"cards": [{"why": "a — b"}]}]}
@@ -103,6 +132,20 @@ class TestEnforce(unittest.TestCase):
     def test_report_is_one_line_per_violation(self):
         found = g.check_tree({"a": "x — y", "b": "seamless"})
         self.assertEqual(len(g.report(found).strip().splitlines()), 2)
+
+    def test_ai_tell_message_names_the_allow_words_escape(self):
+        found = g.check_tree({"a": "a seamless pipeline"})
+        with self.assertRaises(g.GuardrailError) as ctx:
+            g.enforce(found)
+        self.assertIn("allow_words", str(ctx.exception))
+
+    def test_em_dash_only_message_does_not_mention_the_escape(self):
+        """allow_words only escapes ai-tell hits; an em-dash-only failure has
+        no allowlist to point at, so the message should not claim one."""
+        found = g.check_tree({"a": "x — y"})
+        with self.assertRaises(g.GuardrailError) as ctx:
+            g.enforce(found)
+        self.assertNotIn("allow_words", str(ctx.exception))
 
 
 class TestPptxChecks(unittest.TestCase):
@@ -148,6 +191,39 @@ class TestPptxChecks(unittest.TestCase):
             self.assertEqual(len(found), 1)
             self.assertEqual(found[0].check, "pptx-unreadable")
             self.assertEqual(found[0].field, "notazip.pptx")
+
+
+class TestGuardrailsCli(unittest.TestCase):
+    """guardrails.py must be runnable standalone: the gate that cannot be
+    bypassed by hand-editing a builder has to exist as a real command, not
+    just as functions nothing calls."""
+
+    GUARDRAILS = os.path.join(ROOT, "shared", "guardrails.py")
+    FIXTURES = os.path.join(HERE, "fixtures", "make_bad_pptx.py")
+
+    def test_usage_message_when_no_path_given(self):
+        proc = subprocess.run([sys.executable, self.GUARDRAILS],
+                              capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("usage", proc.stderr.lower())
+
+    def test_exits_nonzero_and_reports_a_bad_deck(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "bad.pptx")
+            subprocess.run([sys.executable, self.FIXTURES, "bad", path], check=True)
+            proc = subprocess.run([sys.executable, self.GUARDRAILS, path],
+                                  capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 1)
+            self.assertIn("pptx-connector", proc.stdout)
+
+    def test_exits_zero_for_a_clean_deck(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "ok.pptx")
+            subprocess.run([sys.executable, self.FIXTURES, "clean", path], check=True)
+            proc = subprocess.run([sys.executable, self.GUARDRAILS, path],
+                                  capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0)
+            self.assertIn("clean", proc.stdout.lower())
 
 
 if __name__ == "__main__":
