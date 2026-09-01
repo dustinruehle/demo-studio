@@ -97,8 +97,9 @@ def build(cfg):
           for (i,t) in navdefs)
 
         # intro (cold start + lanes + termmap + smoke)
+        _muted_style = ' style="color:var(--muted)"'
         lanes="".join(
-          f'<div class="lane {cls}"><span class="ln"{(" style=\"color:var(--muted)\"" if not cls else "")}>{name}</span><p>{desc}</p></div>'
+          f'<div class="lane {cls}"><span class="ln"{_muted_style if not cls else ""}>{name}</span><p>{desc}</p></div>'
           for (name,cls,desc) in demo.get("lanes",[]))
         def _kc(k): return "yes" if str(k).strip().lower().startswith("yes") else ""
         termmap="".join(

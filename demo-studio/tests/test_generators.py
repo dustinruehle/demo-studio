@@ -48,5 +48,24 @@ class TestNoEmDashes(unittest.TestCase):
                     self.assertNotIn("—", f.read())
 
 
+class TestInterpreterFloor(unittest.TestCase):
+    """Both generators must parse and run on the 3.9 floor, not just 3.12."""
+
+    INTERPRETERS = [p for p in ("/usr/bin/python3",
+                                os.path.expanduser("~/.asdf/installs/python/3.12.12/bin/python3"))
+                    if os.path.exists(p)]
+
+    def test_generators_compile_on_every_interpreter(self):
+        self.assertTrue(self.INTERPRETERS, "no interpreters found to test")
+        for interp in self.INTERPRETERS:
+            for script, _, _ in GENERATORS:
+                with self.subTest(interp=interp, script=script):
+                    proc = subprocess.run(
+                        [interp, "-m", "py_compile", os.path.join(ROOT, "assets", script)],
+                        capture_output=True, text=True)
+                    self.assertEqual(proc.returncode, 0,
+                                     f"{script} does not compile on {interp}: {proc.stderr}")
+
+
 if __name__ == "__main__":
     unittest.main()
