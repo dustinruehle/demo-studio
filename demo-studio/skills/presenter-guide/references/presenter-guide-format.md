@@ -39,7 +39,20 @@ top-level `discovery` field (path to a discovery JSON file), the build resolves
 every `traces` value against that record: an id that does not exist fails the
 build, and free text with no id at all is accepted but prints a warning.
 `traces` is optional on a slide, unlike on flow-guide cards, so adoption can be
-gradual.
+gradual. See `../../demo-discovery/references/discovery-format.md` for the id
+format.
+
+## Public-safe escape: `allow_words` and `banned_terms`
+
+Optional top-level fields, both arrays of strings, read by the same guardrail
+that scans every text field in this config:
+
+- `banned_terms`: identifiers that must never reach the output (a real
+  customer name, a codename, an internal host). Any match anywhere in the
+  config, case-insensitive and word-bounded, hard-fails the build.
+- `allow_words`: a documented escape for the AI-tell filter. If a listed word
+  ("robust", "actually", etc.) is doing legitimate technical work here, name it
+  in this list rather than rewording around a false positive.
 
 ## Demo run-of-show (`demo`)
 

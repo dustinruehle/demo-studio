@@ -39,8 +39,16 @@ internal hostnames/URLs, no real credentials. Ship a curated grep gate
 false-positive-prone ones. A synthetic domain skin (e.g. a made-up healthcare or
 warranty dataset) is fine; a customer's name is not.
 
+In the discovery, flow-guide, and presenter-guide configs, name those
+identifiers in a top-level `banned_terms` list; the guardrail hard-fails the
+build on any match anywhere in the config.
+
 ## No AI-tells
 
 Trim filler ("seamless", "robust", "leverage", "genuinely", "delve", "honestly",
 "actually"). No em dashes anywhere: commas or restructure. Engineer-to-engineer
 register: terse, direct, commit to a recommendation rather than hedge.
+
+The filter has a documented escape for a legitimate technical use: add the word
+to a top-level `allow_words` list in the same three configs, rather than
+rewording around a false positive or disabling the check.
