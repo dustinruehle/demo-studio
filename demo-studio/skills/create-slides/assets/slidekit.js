@@ -95,12 +95,17 @@ function renderOp(o, palette) {
   const fill = hex((o.opts && o.opts.fill) || palette.panel);
   const line = hex((o.opts && o.opts.line) || palette.border);
   switch (o.op) {
-    case 'box':
+    case 'box': {
+      // Text colour defaults to the palette, honouring a per-op override, so
+      // this stays consistent with renderPptx: neither backend may fall back
+      // to a renderer default (pptxgenjs defaults to black), only to p.txt.
+      const textColor = hex((o.opts && o.opts.color) || palette.txt);
       return `<rect x="${u(o.x)}" y="${u(o.y)}" width="${u(o.w)}" height="${u(o.h)}" rx="6" `
            + `fill="${fill}" stroke="${line}" stroke-width="1"/>`
-           + `<text x="${u(o.x + o.w / 2)}" y="${u(o.y + o.h / 2)}" fill="${hex(palette.txt)}" `
+           + `<text x="${u(o.x + o.w / 2)}" y="${u(o.y + o.h / 2)}" fill="${textColor}" `
            + `font-family="${palette.body}" font-size="15" text-anchor="middle" `
            + `dominant-baseline="middle">${esc(plainText(o.opts.rt))}</text>`;
+    }
     case 'frame':
       return `<rect x="${u(o.x)}" y="${u(o.y)}" width="${u(o.w)}" height="${u(o.h)}" rx="5" `
            + `fill="none" stroke="${hex(o.color)}" stroke-width="1"/>`;
@@ -176,6 +181,9 @@ function renderPptx(slides, pres, palette) {
             align: o.opts.align || 'center',
             valign: o.opts.valign || 'middle',
             margin: o.opts.margin != null ? o.opts.margin : 6,
+            // Explicit, never the pptxgenjs default (black): a dark panel with
+            // black text is invisible. Honour a per-op override, else p.txt.
+            color: bare(o.opts.color || p.txt),
           });
           break;
         case 'frame':

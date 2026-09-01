@@ -176,3 +176,27 @@ test('the PPTX backend strips the leading hash from colours', () => {
   const line = pres.slides[0].shapes.find((s) => s.opts.line);
   assert.strictEqual(line.opts.line.color, '8E6BE6');
 });
+
+test('the PPTX backend gives box text an explicit colour, never the pptxgenjs default', () => {
+  const pres = stubPres();
+  kit.renderPptx([sample()], pres);
+  const boxText = pres.slides[0].texts.find((t) => t.opts.shape === pres.ShapeType.roundRect);
+  assert.ok(boxText, 'no box text found');
+  assert.strictEqual(boxText.opts.color, kit._internal.DEFAULT_PALETTE.txt,
+    'box text must default to the palette text colour, not fall through to black');
+});
+
+test('the PPTX backend honours a per-box colour override', () => {
+  const pres = stubPres();
+  kit.renderPptx([kit.recordSlide({ eyebrow: '', title: '', sub: '' },
+    (k) => k.box(1, 1, 2, 2, { rt: 'x', color: '#8E6BE6' }))], pres);
+  const boxText = pres.slides[0].texts.find((t) => t.opts.shape === pres.ShapeType.roundRect);
+  assert.strictEqual(boxText.opts.color, '8E6BE6');
+});
+
+test('the SVG box text uses the same colour rule as the PPTX backend', () => {
+  const svg = kit.renderSvg(kit.recordSlide({ eyebrow: '', title: '', sub: '' },
+    (k) => k.box(1, 1, 2, 2, { rt: 'x', color: '#8E6BE6' })));
+  assert.match(svg, /<text[^>]*fill="#8E6BE6"[^>]*>x<\/text>/,
+    'box text overriding colour must be painted with the override, not the default palette text colour');
+});
