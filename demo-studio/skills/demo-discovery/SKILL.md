@@ -15,6 +15,22 @@ really in the room, what to build, and how the session should be shaped. This is
 the first stage of the pipeline; its output feeds `demo-studio:build-spec` and
 `demo-studio:deck-flow-guide`.
 
+## Quickstart
+
+`assets/build_discovery.py` renders the durable `discovery.json` record into a
+readable `discovery.md`. See `references/discovery-format.md` for the schema
+and `assets/examples/discovery.example.json` for a filled-in record.
+
+```bash
+cp assets/examples/discovery.example.json discovery.json
+# edit discovery.json: signals with ids, demo_fit, session, fork
+python3 assets/build_discovery.py discovery.json discovery.md
+```
+
+Later stages (`demo-studio:deck-flow-guide`, `demo-studio:presenter-guide`)
+point their own config's `discovery` field at this `discovery.json` so their
+`traces` values resolve against real signal ids instead of free text.
+
 ## 1. Discovery read
 
 Read the call transcript(s). Identify the real technical buyer versus low-fit
