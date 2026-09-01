@@ -1,0 +1,57 @@
+{
+  "engagement": "example-2026-09",
+  "signals": [
+    {
+      "id": "D1",
+      "kind": "grounded",
+      "text": "No way to distinguish a dead worker from a slow job",
+      "quote": "we cannot tell if a worker died or the job is just slow",
+      "attribution": "platform lead"
+    },
+    {
+      "id": "D2",
+      "kind": "grounded",
+      "text": "Retries are hand rolled per service and drift",
+      "quote": "every team wrote their own retry loop and none of them agree",
+      "attribution": "staff engineer"
+    },
+    {
+      "id": "D3",
+      "kind": "grounded",
+      "text": "Regulated environment, self hosted only",
+      "quote": "we cannot send claim data to a vendor cloud",
+      "attribution": "security architect"
+    },
+    {
+      "id": "D4",
+      "kind": "inferred",
+      "text": "Claims adjudication domain skin for the demo",
+      "exercises": ["D1", "D3"]
+    },
+    {
+      "id": "D5",
+      "kind": "inferred",
+      "text": "Kill a worker mid run to make durability visible",
+      "exercises": ["D1", "D2"]
+    }
+  ],
+  "demo_fit": [
+    {"demo": "Durable pipeline", "why": "shows D1 directly", "verdict": "lead"},
+    {"demo": "Saga rollback", "why": "answers D2 without a new build", "verdict": "second"},
+    {"demo": "Cloud onboarding", "why": "self hosted only, D3", "verdict": "skip"}
+  ],
+  "session": {
+    "pitch": false,
+    "deployment": "self-hosted",
+    "beats": [
+      ["00:00", "Open and frame", 5],
+      ["00:05", "Model the problem", 10],
+      ["00:15", "Live demo", 25],
+      ["00:40", "Handoff and next steps", 10]
+    ]
+  },
+  "fork": {
+    "choice": "v1",
+    "why": "first session, independent failure surfaces beat fidelity"
+  }
+}
