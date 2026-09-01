@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenter Guide · &lt;Company&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#4C2889;--indigo-ink:#2A1650;--indigo-tint:#EFEAF6;
+  --ink:#1C1526;--paper:#F6F4FA;--card:#FFFFFF;
+  --amber:#B07A00;--green:#2E7D5B;--green-tint:#E8F2ED;--coral:#C0503A;--coral-tint:#FBEDE8;
+  --muted:#6A6478;--faint:#8B84A3;--line:#E4E0EC;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5;}
+a{color:inherit;text-decoration:none;}
+
+/* layout */
+.shell{display:grid;grid-template-columns:264px 1fr;}
+/* sidebar */
+.side{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;border-right:1px solid var(--line);background:#fff;padding:22px 14px 40px;}
+.side h1{font-family:"Fraunces",serif;font-weight:600;font-size:19px;line-height:1.1;margin:2px 6px 2px;}
+.side .sub{font-size:11.5px;color:var(--muted);margin:0 6px 16px;}
+.nav{display:flex;flex-direction:column;gap:2px;}
+.navitem{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:7px 8px;border-radius:7px;font-size:13px;color:var(--ink);}
+.navitem:hover{background:var(--indigo-tint);}
+.navitem.active{background:var(--indigo);color:#fff;}
+.navitem.active .navnum,.navitem.active .navact{color:#fff !important;}
+.navnum{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:700;color:var(--indigo);}
+.navtxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.navact{font-family:"JetBrains Mono",monospace;font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+
+/* content */
+.main{padding:36px clamp(20px,4vw,56px) 90px;max-width:1080px;}
+.masthead{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:8px;}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);font-weight:500;}
+.masthead h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(30px,4.4vw,44px);line-height:1.05;margin:.25em 0 .3em;}
+.masthead .lede{font-size:16px;color:var(--muted);max-width:70ch;margin:0 0 16px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{font-family:"JetBrains Mono",monospace;font-size:11.5px;background:var(--indigo-tint);color:var(--indigo-ink);padding:6px 11px;border-radius:999px;}
+.chip b{font-weight:700;}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:13px;color:var(--muted);}
+.legend span b{color:var(--ink);}
+
+/* slide section */
+.slide{padding:34px 0 30px;border-bottom:1px solid var(--line);scroll-margin-top:14px;}
+.s-eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.s-titlerow{display:flex;align-items:baseline;gap:12px;margin:4px 0 8px;}
+.s-num{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:20px;color:var(--indigo);}
+.s-title{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(23px,3vw,30px);line-height:1.08;margin:0;}
+.s-onscreen{font-size:13.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;}
+.s-onscreen .oslbl{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-right:8px;}
+
+.s-grid{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:18px;margin-top:18px;}
+.blocklbl{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.blocklbl.points{color:var(--indigo);}
+.blocklbl.say{color:var(--green);}
+.blocklbl.ask{color:var(--coral);}
+.tele{font-family:"IBM Plex Sans",sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:none;color:var(--faint);background:var(--green-tint);padding:2px 7px;border-radius:999px;}
+
+ul.points{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;}
+ul.points li{position:relative;padding-left:16px;font-size:14px;color:var(--ink);line-height:1.4;}
+ul.points li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--indigo);}
+
+/* teleprompter beats */
+.beats{display:flex;flex-direction:column;gap:8px;}
+.beat{background:#fff;border:1px solid var(--line);border-left:3px solid var(--green);border-radius:8px;padding:11px 14px;font-size:16px;line-height:1.45;color:var(--ink);}
+
+/* questions */
+.qcard{background:var(--coral-tint);border:1px solid #F0D8CE;border-radius:8px;padding:10px 12px;font-size:13.5px;color:var(--ink);line-height:1.4;margin-bottom:8px;}
+
+.backtop{position:fixed;right:18px;bottom:18px;background:var(--indigo);color:#fff;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.06em;padding:9px 12px;border-radius:8px;opacity:.9;}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;}
+  .side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);}
+  .side{max-height:none;}
+  .nav{display:grid;grid-template-columns:1fr 1fr;}
+  .s-grid{grid-template-columns:1fr;}
+}
+@media print{
+  .side,.backtop{display:none;}
+  .shell{grid-template-columns:1fr;}
+  .slide{break-inside:avoid;}
+  .s-grid{grid-template-columns:1fr 1fr;}
+}
+
+
+.navdiv{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding:14px 8px 6px;border-top:1px solid var(--line);margin-top:10px;}
+.demobanner{background:var(--indigo);color:#fff;border-radius:12px;padding:22px 24px;margin:6px 0 18px;}
+.demobanner .eyebrow{color:#C9B8F0;}
+.demobanner h2{font-family:"Fraunces",serif;font-weight:600;font-size:28px;margin:.2em 0 .3em;color:#fff;}
+.demobanner p{margin:0;color:#E7DEFA;font-size:14px;max-width:72ch;}
+.demo-h{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--indigo);margin:22px 0 9px;}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0;}
+.lane{background:#fff;border:1px solid var(--line);border-radius:9px;padding:12px 14px;}
+.lane .ln{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.lane.plat{border-left:3px solid var(--indigo);} .lane.plat .ln{color:var(--indigo);}
+.lane.work{border-left:3px solid var(--coral);} .lane.work .ln{color:#B24326;}
+.lane p{margin:5px 0 0;font-size:13px;color:var(--muted);line-height:1.4;}
+.termmap,.scenariotable{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0;}
+.termmap th,.termmap td,.scenariotable th,.scenariotable td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);}
+.termmap th,.scenariotable th{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;}
+.termmap code,.scenariotable code,.trouble code,.bc-row code,.bc-note code,.smoke code{font-family:"JetBrains Mono",monospace;font-size:12px;background:var(--indigo-tint);padding:1px 5px;border-radius:4px;color:var(--indigo-ink);}
+.termmap .yes{color:var(--green);font-weight:600;} .termmap .kill{color:var(--coral);font-weight:700;}
+.smoke{background:var(--green-tint);border:1px solid #CDE7DB;border-radius:8px;padding:11px 13px;font-size:13.5px;color:#245A44;margin:12px 0;line-height:1.5;}
+.smoke b{color:var(--ink);}
+.beatsec{scroll-margin-top:14px;padding:8px 0;}
+.beatcard{background:#fff;border:1px solid var(--line);border-left:4px solid var(--indigo);border-radius:11px;padding:18px 20px;margin:0 0 8px;}
+.beatcard.accent-coral{border-left-color:var(--coral);}
+.beatcard.accent-green{border-left-color:var(--green);}
+.beatcard.accent-amber{border-left-color:var(--amber);}
+.bc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px;}
+.bc-badge{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.05em;color:#fff;background:var(--indigo);padding:4px 9px;border-radius:6px;}
+.accent-coral .bc-badge{background:var(--coral);} .accent-green .bc-badge{background:var(--green);} .accent-amber .bc-badge{background:var(--amber);}
+.bc-title{font-family:"Fraunces",serif;font-weight:600;font-size:21px;margin:0;flex:1;}
+.bc-tag{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:4px 9px;border-radius:999px;}
+.term-action{font-family:"JetBrains Mono",monospace;font-size:12.5px;background:#241C33;color:#F4F1FB;border-radius:8px;padding:10px 13px;margin:8px 0 12px;line-height:1.5;}
+.term-action code{background:rgba(255,255,255,.14);padding:1px 5px;border-radius:4px;color:#fff;}
+.term-action b{color:#F5A38A;}
+.bc-row{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:8px 0;border-top:1px solid var(--line);}
+.bc-row:first-child{border-top:none;}
+.bc-lbl{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding-top:3px;}
+.bc-lbl.goal{color:var(--muted);} .bc-lbl.do{color:var(--indigo);} .bc-lbl.watch{color:var(--green);} .bc-lbl.why{color:var(--coral);}
+.bc-row ol,.bc-row ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:14px;}
+.bc-row li{line-height:1.45;}
+.bc-row .single{font-size:14px;line-height:1.45;}
+.bc-row .single.whytext{font-weight:500;}
+.bc-note{font-size:12.5px;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:9px 12px;margin-top:11px;line-height:1.5;}
+.bc-note b{color:var(--ink);}
+.switchwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0;}
+.switchblock{background:#241C33;border-radius:9px;padding:13px 15px;}
+.switchblock .sw-t{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#C9B8F0;margin-bottom:8px;}
+.switchblock pre{margin:0;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#E7E2F5;white-space:pre-wrap;line-height:1.55;}
+.swnote{font-size:12.5px;color:var(--muted);margin:10px 0 0;line-height:1.5;}
+.troublelist{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+.trouble{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13px;line-height:1.45;}
+.trouble b{color:var(--ink);}
+@media(max-width:1000px){ .lanes,.switchwrap{grid-template-columns:1fr;} .bc-row{grid-template-columns:1fr;} .bc-lbl{padding-top:0;} }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <h1>Presenter Guide</h1>
+    <div class="sub">&lt;Company&gt; · &lt;Deck&gt; · 3 slides</div>
+    <nav class="nav">
+<a class="navitem" href="#s1" data-target="s1"><span class="navnum">01</span><span class="navtxt">Title</span><span class="navact" style="color:#1C1526">Open</span></a>
+<a class="navitem" href="#s2" data-target="s2"><span class="navnum">02</span><span class="navtxt">The problem</span><span class="navact" style="color:#B07A00">Act 1</span></a>
+<a class="navitem" href="#s3" data-target="s3"><span class="navnum">03</span><span class="navtxt">Live demo</span><span class="navact" style="color:#1C1526">Demo</span></a>
+<div class="navdiv">Live demo · run of show</div>
+<a class="navitem" href="#demo" data-target="demo"><span class="navnum">&#9654;</span><span class="navtxt">Cold start &amp; lanes</span></a>
+<a class="navitem" href="#d1" data-target="d1"><span class="navnum">1</span><span class="navtxt">Beat 1 &middot; Happy path</span></a>
+<a class="navitem" href="#d2" data-target="d2"><span class="navnum">2</span><span class="navtxt">Beat 2 &middot; Money moment</span></a>
+<a class="navitem" href="#dref" data-target="dref"><span class="navnum">R</span><span class="navtxt">Reference &amp; switches</span></a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="masthead">
+      <div class="eyebrow">Companion presenter guide</div>
+      <h1>&lt;Deck title&gt; · &lt;Company&gt;</h1>
+      <p class="lede">Slide-by-slide talking points, a teleprompter script, and questions to ask the room. Tuned for the specific audience, running into the live demo.</p>
+      <div class="chips"><span class="chip"><b>Presenters:</b> SA + AE</span><span class="chip"><b>Room:</b> &lt;key names + roles&gt;</span><span class="chip"><b>Flow:</b> frame → prime → prove → hand off → demo</span><span class="chip"><b>Time:</b> ~18 min + demo</span></div>
+      <div class="legend"><span><b>Talking points</b> what to land</span><span><b>Say</b> read it like a teleprompter, one line per breath</span><span><b>Ask &amp; expect</b> questions to pose, and ones they will pose back</span></div>
+    </div>
+
+    <section class="slide" id="s1">
+      <div class="s-head">
+        <div class="s-eyebrow" style="color:#1C1526">Open</div>
+        <div class="s-titlerow"><span class="s-num">01</span><h2 class="s-title">&lt;Title&gt;</h2></div>
+        <div class="s-onscreen"><span class="oslbl">On screen</span>Title slide. One-line positioning statement.</div>
+      </div>
+      <div class="s-grid">
+        <div class="col-points"><div class="blocklbl points">Talking points</div><ul class="points"><li>Set the frame in one sentence.</li><li>Name their world.</li><li>Keep it short, get to value.</li></ul></div>
+        <div class="col-say"><div class="blocklbl say">Say <span class="tele">teleprompter</span></div><div class="beats"><div class="beat">Thanks for the time, and for bringing the team.</div><div class="beat">Quick framing before slides, then a live demo.</div><div class="beat">Stop me anytime, this is a conversation.</div></div></div>
+        <div class="col-ask"><div class="blocklbl ask">Ask &amp; expect</div><div class="qcard">Who here has used &lt;product&gt; before? (calibrates depth)</div><div class="qcard">Anything specific to cover today?</div></div>
+      </div>
+    </section>
+
+    <section class="slide" id="s2">
+      <div class="s-head">
+        <div class="s-eyebrow" style="color:#B07A00">Act 1 · Frame</div>
+        <div class="s-titlerow"><span class="s-num">02</span><h2 class="s-title">&lt;Problem framing&gt;</h2></div>
+        <div class="s-onscreen"><span class="oslbl">On screen</span>The tension the rest of the session resolves.</div>
+      </div>
+      <div class="s-grid">
+        <div class="col-points"><div class="blocklbl points">Talking points</div><ul class="points"><li>Agree with their reality first.</li><li>Name the specific cost.</li><li>This is common ground.</li></ul></div>
+        <div class="col-say"><div class="blocklbl say">Say <span class="tele">teleprompter</span></div><div class="beats"><div class="beat">You know this better than we do.</div><div class="beat">The easy part is the prototype.</div><div class="beat">The interesting question is whether it survives production.</div></div></div>
+        <div class="col-ask"><div class="blocklbl ask">Ask &amp; expect</div><div class="qcard">Where does it start hurting when you go to production?</div></div>
+      </div>
+    </section>
+
+    <section class="slide" id="s3">
+      <div class="s-head">
+        <div class="s-eyebrow" style="color:#1C1526">Demo</div>
+        <div class="s-titlerow"><span class="s-num">03</span><h2 class="s-title">Live demo: see it run</h2></div>
+        <div class="s-onscreen"><span class="oslbl">On screen</span>Transition slide.</div>
+      </div>
+      <div class="s-grid">
+        <div class="col-points"><div class="blocklbl points">Talking points</div><ul class="points"><li>Stop presenting, start clicking.</li><li>Let the dashboard carry it.</li><li>Leave time for Q&amp;A.</li></ul></div>
+        <div class="col-say"><div class="blocklbl say">Say <span class="tele">teleprompter</span></div><div class="beats"><div class="beat">Let us stop looking at slides and run it.</div><div class="beat">Interrupt me the moment something raises a question.</div></div></div>
+        <div class="col-ask"><div class="blocklbl ask">Ask &amp; expect</div><div class="qcard">(after) Where does this plug in first?</div><div class="qcard">(after) Set up a technical deep dive?</div></div>
+      </div>
+    </section>
+<section class="navsec" id="demo"><div class="demobanner"><div class="eyebrow">Live demo · run of show</div><h2><Demo name></h2><p>Beats from cold start to composition. Default posture: mock models, local, no keys. You only Ctrl-C an agent worker for the durability beats.</p></div><h3 class="demo-h">Opening talk track</h3><div class="beats"><div class="beat">There are two layers of durability here. The outer harness is the business process. The inner harnesses are the agents themselves. In mock mode we stub only the model, never the integration, so everything you see is real except the words the model would have said.</div></div><h3 class="demo-h">What you are pointing at</h3><div class="lanes"><div class="lane plat"><span class="ln">PLATFORM lane</span><p>Server-side truth. Survives a worker dying. Point here to prove durability.</p></div><div class="lane work"><span class="ln">WORKER lane</span><p>Live worker state. Goes OFFLINE when that worker is down, which dims the pipeline.</p></div><div class="lane "><span class="ln" style="color:var(--muted)">Pipeline</span><p>The ordered steps of the run.</p></div><div class="lane "><span class="ln" style="color:var(--muted)">Activity feed</span><p>Each agent's model and tool calls as they land as Activities.</p></div></div><h3 class="demo-h">Cold start &middot; terminal map</h3><table class="termmap"><thead><tr><th>#</th><th>Command</th><th>Keep running</th><th>Ctrl-C in beats</th></tr></thead><tbody><tr><td><b>0</b></td><td><code>cmd preflight</code></td><td class="">no (returns)</td><td>&mdash;</td></tr><tr><td><b>1</b></td><td><code>cmd server</code></td><td class="yes">yes</td><td>never</td></tr><tr><td><b>2</b></td><td><code>cmd worker-a</code></td><td class="yes">yes</td><td><span class="kill">Beat 2</span></td></tr></tbody></table><div class="smoke"><b>Smoke check:</b> click <b>Start happy</b>. Within a second or two the steps go green. If that works, you are fully up.</div></section>
+<section class="navsec beatsec" id="d1"><div class="beatcard accent-indigo"><div class="bc-head"><span class="bc-badge">Beat 1</span><h3 class="bc-title">Happy path</h3><span class="bc-tag">baseline</span></div><div class="bc-body"><div class="bc-row"><span class="bc-lbl goal">Goal</span><div><div class="single">One durable run completes with every call recorded.</div></div></div><div class="bc-row"><span class="bc-lbl do">Do</span><div><ol><li>Click <b>Start happy</b>.</li></ol></div></div><div class="bc-row"><span class="bc-lbl watch">Watch</span><div><ul><li>Steps go green in order.</li><li><b>PLATFORM</b> goes <code>RUNNING &rarr; COMPLETED</code>.</li></ul></div></div><div class="bc-row"><span class="bc-lbl why">Why</span><div><div class="single whytext">No queue, no glue; every call is a recorded Activity.</div></div></div></div></div></section>
+<section class="navsec beatsec" id="d2"><div class="beatcard accent-coral"><div class="bc-head"><span class="bc-badge">Beat 2</span><h3 class="bc-title">Money moment</h3><span class="bc-tag">kill worker</span></div><div class="term-action">&#9000; <b>Ctrl-C</b> the worker, leave it stopped. Restart later with <code>cmd worker-a</code>.</div><div class="bc-body"><div class="bc-row"><span class="bc-lbl goal">Goal</span><div><div class="single">Kill a worker mid-flight; the run survives and resumes.</div></div></div><div class="bc-row"><span class="bc-lbl do">Do</span><div><ol><li>Ctrl-C the worker.</li><li>Start the run.</li><li>Restart the worker.</li></ol></div></div><div class="bc-row"><span class="bc-lbl watch">Watch</span><div><ul><li><b>WORKER</b> flips OFFLINE and the pipeline dims; <b>PLATFORM</b> stays RUNNING.</li><li>After restart it resumes exactly where it was.</li></ul></div></div><div class="bc-row"><span class="bc-lbl why">Why</span><div><div class="single whytext">We killed the worker and lost nothing. Earlier steps are not re-run.</div></div></div></div><div class="bc-note"><b>Timing:</b> take the worker down first, then start the run, so you are never racing the clock.</div></div></section>
+<section class="navsec" id="dref"><div class="s-titlerow"><span class="s-num">R</span><h2 class="s-title">Reference &amp; switches</h2></div><h3 class="demo-h">Scenario buttons</h3><table class="scenariotable"><thead><tr><th>Button</th><th>Case / profile</th><th>Shows</th></tr></thead><tbody><tr><td><b>Start happy</b></td><td><code>approve</code></td><td>full green run</td></tr><tr><td><b>Start refer</b></td><td><code>refer</code></td><td>durability + human gate</td></tr></tbody></table><h3 class="demo-h">Switches</h3><div class="switchwrap"><div class="switchblock"><div class="sw-t">Mock to real</div><pre>export MODEL_MODE=real
+export API_KEY=...</pre></div><div class="switchblock"><div class="sw-t">Local to Cloud</div><pre>export ADDRESS=&lt;ns&gt;.tmprl.cloud:7233
+export NAMESPACE=&lt;ns&gt;</pre></div></div><p class="swnote">Unset means local dev server and mock models. Restart the affected worker after changing env.</p><h3 class="demo-h">Troubleshooting</h3><div class="troublelist"><div class="trouble"><b>Worker won't start:</b> run the preflight; it re-adds the integration extras and verifies imports.</div><div class="trouble"><b>Reset:</b> Ctrl-C all terminals; local dev server state is in-memory.</div></div></section>
+  </main>
+</div>
+<a class="backtop" href="#top">&#8593; top</a>
+<span id="top"></span>
+<script>
+const items=[...document.querySelectorAll('.navitem')];
+const map=new Map(items.map(a=>[a.dataset.target,a]));
+const secs=[...document.querySelectorAll('section[id]')];
+function setActive(){
+  const line=120; let best=null;
+  const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 2;
+  if(atBottom){ best=secs[secs.length-1]; }
+  else { for(const s of secs){ if(s.getBoundingClientRect().top-line<=0) best=s; } }
+  if(!best) best=secs[0];
+  if(!best) return;
+  items.forEach(i=>i.classList.remove('active'));
+  const a=map.get(best.id); if(a){a.classList.add('active'); a.scrollIntoView({block:'nearest'});}
+}
+let tick=false;
+addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(()=>{setActive();tick=false;});}},{passive:true});
+addEventListener('load',setActive); setActive();
+</script>
+</body>
+</html>

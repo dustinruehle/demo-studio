@@ -1,0 +1,12 @@
+{
+  "name": "demo-studio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Demo Studio slide tooling",
+  "scripts": {
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "pptxgenjs": "^3.12.0"
+  }
+}
