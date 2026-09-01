@@ -43,7 +43,8 @@
       "onscreen": "Transition slide.",
       "points": ["Stop presenting, start clicking.", "Let the dashboard carry it.", "Leave time for Q&A."],
       "say": ["Let us stop looking at slides and run it.", "Interrupt me the moment something raises a question."],
-      "ask": ["(after) Where does this plug in first?", "(after) Set up a technical deep dive?"]
+      "ask": ["(after) Where does this plug in first?", "(after) Set up a technical deep dive?"],
+      "traces": "D5"
     }
   ],
   "demo": {

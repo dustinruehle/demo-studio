@@ -7,6 +7,7 @@ resolvable reference, so a card that traces to nothing is a build finding.
 import json
 import re
 
+import validate_config
 from guardrails import Violation
 
 REF_RE = re.compile(r"\bD\d+\b")
@@ -24,12 +25,33 @@ def refs(text):
 
 
 def signal_ids(discovery):
-    return {s["id"] for s in (discovery or {}).get("signals", ())}
+    """Every signal id in a discovery record. Missing 'signals' is a legitimate
+    empty record (yields an empty set); a signal present but missing 'id' is a
+    malformed discovery file and raises, naming the offending entry."""
+    out = set()
+    for i, signal in enumerate((discovery or {}).get("signals", ())):
+        if "id" not in signal:
+            raise validate_config.ConfigError(
+                "discovery: signals[%d]: missing required field 'id'" % i)
+        out.add(signal["id"])
+    return out
 
 
 def load_discovery(path):
-    with open(path) as f:
-        return json.load(f)
+    """Load a discovery JSON file. Bad path or bad JSON becomes a ConfigError
+    naming the path, the same clean-message contract every other config problem
+    in this tool honours, rather than a raw traceback."""
+    try:
+        with open(path) as f:
+            text = f.read()
+    except OSError as err:
+        raise validate_config.ConfigError(
+            "discovery: could not read %s (%s)" % (path, err.strerror or err))
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as err:
+        raise validate_config.ConfigError(
+            "discovery: %s is not valid JSON (%s)" % (path, err))
 
 
 def _walk(obj, known, path, out):

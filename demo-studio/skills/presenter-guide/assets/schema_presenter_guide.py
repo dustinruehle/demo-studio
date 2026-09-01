@@ -14,6 +14,7 @@ _SLIDE = {
         "points": _STRINGS,
         "say": _STRINGS,
         "ask": _STRINGS,
+        "traces": {"type": "string"},
     },
 }
 

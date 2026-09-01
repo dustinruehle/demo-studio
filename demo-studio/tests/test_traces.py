@@ -1,6 +1,7 @@
 """traces-to stops being an honour system."""
 import os
 import sys
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -8,6 +9,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "shared"))
 
 import traces  # noqa: E402
+import validate_config  # noqa: E402
 
 DISCOVERY = {"engagement": "x", "signals": [
     {"id": "D1", "kind": "grounded", "text": "a", "quote": "q", "attribution": "r"},
@@ -74,6 +76,48 @@ class TestCheckTraces(unittest.TestCase):
     def test_no_discovery_means_no_checking(self):
         cfg = {"acts": [{"cards": [{"traces": "D9"}]}]}
         self.assertEqual(traces.check_traces(cfg, None), [])
+
+    def test_discovery_with_no_signals_key_still_yields_unresolved_findings(self):
+        # A legitimate empty record, not an error: nothing can resolve, so every
+        # id in a traces field is correctly reported as unresolved.
+        cfg = {"acts": [{"cards": [{"traces": "D1"}]}]}
+        found = traces.check_traces(cfg, {"engagement": "x"})
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].check, "unresolved-trace")
+
+
+class TestSignalIdsMalformed(unittest.TestCase):
+    def test_no_signals_key_yields_an_empty_set_not_an_error(self):
+        self.assertEqual(traces.signal_ids({"engagement": "x"}), set())
+
+    def test_a_signal_missing_id_is_a_clean_config_error_naming_the_entry(self):
+        bad = {"signals": [
+            {"id": "D1", "kind": "grounded"},
+            {"kind": "inferred", "text": "no id on this one"},
+        ]}
+        with self.assertRaises(validate_config.ConfigError) as ctx:
+            traces.signal_ids(bad)
+        self.assertIn("signals[1]", str(ctx.exception))
+
+
+class TestLoadDiscovery(unittest.TestCase):
+    def test_a_missing_file_is_a_clean_config_error_naming_the_path(self):
+        path = os.path.join(tempfile.gettempdir(), "does-not-exist-traces-test.json")
+        self.assertFalse(os.path.exists(path))
+        with self.assertRaises(validate_config.ConfigError) as ctx:
+            traces.load_discovery(path)
+        self.assertIn(path, str(ctx.exception))
+
+    def test_malformed_json_is_a_clean_config_error_naming_the_path(self):
+        fd, path = tempfile.mkstemp(suffix=".json")
+        try:
+            with os.fdopen(fd, "w") as f:
+                f.write("{not valid json")
+            with self.assertRaises(validate_config.ConfigError) as ctx:
+                traces.load_discovery(path)
+            self.assertIn(path, str(ctx.exception))
+        finally:
+            os.remove(path)
 
 
 if __name__ == "__main__":

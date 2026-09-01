@@ -30,8 +30,16 @@ Frame `#B07A00`, Model `#4C2889`, Prime `#2E7D5B`, Prove `#C0503A`, Handoff
 
 Each slide: `num`, `act` (a key in `acts`), `short` (nav label), `title`,
 `onscreen` (what's on the slide), `points` (list), `say` (list of teleprompter
-beats), `ask` (list). All are plain strings (auto-escaped): write clean prose,
-no HTML needed here.
+beats), `ask` (list), `traces` (optional). All are plain strings (auto-escaped):
+write clean prose, no HTML needed here.
+
+`traces` names the discovery signal this slide is grounded in, for example
+`D1`. It is not rendered; it exists to be checked. When the config also sets a
+top-level `discovery` field (path to a discovery JSON file), the build resolves
+every `traces` value against that record: an id that does not exist fails the
+build, and free text with no id at all is accepted but prints a warning.
+`traces` is optional on a slide, unlike on flow-guide cards, so adoption can be
+gradual.
 
 ## Demo run-of-show (`demo`)
 
