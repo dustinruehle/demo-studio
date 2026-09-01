@@ -50,6 +50,9 @@ class TestPluginLayout(unittest.TestCase):
                 self.assertIn("description:", fm, f"{name}: no description field")
 
     def test_no_em_dashes_in_skills_or_shared(self):
+        # guardrails.py must define the literal it checks for; that one exact
+        # line is the sole exemption. Everything else, prose included, is scanned.
+        exempt_line = 'EM_DASH = "—"'
         for base in ("skills", "shared"):
             for dirpath, _, files in os.walk(os.path.join(ROOT, base)):
                 for fn in files:
@@ -58,7 +61,10 @@ class TestPluginLayout(unittest.TestCase):
                     path = os.path.join(dirpath, fn)
                     with self.subTest(path=os.path.relpath(path, ROOT)):
                         with open(path) as f:
-                            self.assertNotIn("—", f.read())
+                            lines = f.readlines()
+                        scanned = "".join(
+                            ln for ln in lines if ln.strip() != exempt_line)
+                        self.assertNotIn("—", scanned)
 
 
 if __name__ == "__main__":
