@@ -34,10 +34,14 @@ picking one over a fused build.
 
 ## The `D\d+` id convention
 
-Signal ids are `D1`, `D2`, `D3`, in the order they surfaced. Do not renumber
-an id once other files reference it; append instead. `exercises` and every
-downstream `traces` field point at these ids, so an id is load-bearing the
-moment it ships, not just a label.
+Signal ids are `D1`, `D2`, `D3`, in the order they surfaced. The accepted
+shape is `^D[1-9]\d*$`: no leading zeros. `D1` and `D01` would otherwise be
+two different strings naming the same intended signal, and Task 13 extracts
+ids from free prose with `\bD\d+\b`, so a stray leading zero would silently
+fail to match rather than being flagged as a typo. Do not renumber an id once
+other files reference it; append instead. `exercises` and every downstream
+`traces` field point at these ids, so an id is load-bearing the moment it
+ships, not just a label.
 
 ## Grounded versus inferred
 

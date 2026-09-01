@@ -8,8 +8,8 @@ _SIGNAL = {
         "id": {"type": "string", "minLength": 2},
         "kind": {"type": "string", "enum": ["grounded", "inferred"]},
         "text": {"type": "string", "minLength": 1},
-        "quote": {"type": "string"},
-        "attribution": {"type": "string"},
+        "quote": {"type": "string", "minLength": 1},
+        "attribution": {"type": "string", "minLength": 1},
         "exercises": {"type": "array", "items": {"type": "string"}},
     },
 }

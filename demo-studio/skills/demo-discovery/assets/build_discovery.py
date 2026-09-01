@@ -17,7 +17,7 @@ import validate_config  # noqa: E402
 
 import schema_discovery  # noqa: E402
 
-ID_RE = re.compile(r"^D\d+$")
+ID_RE = re.compile(r"^D[1-9]\d*$")
 
 
 class DiscoveryError(Exception):
@@ -37,7 +37,8 @@ def check_signals(cfg):
         seen.add(sid)
         if signal["kind"] == "grounded":
             for field in ("quote", "attribution"):
-                if not signal.get(field):
+                value = signal.get(field)
+                if not isinstance(value, str) or not value.strip():
                     problems.append(
                         "signals[%d] (%s): a grounded signal needs %s, "
                         "otherwise it is inferred" % (i, sid, field))
@@ -48,6 +49,15 @@ def check_signals(cfg):
                     "signals[%d].exercises: %s does not exist" % (i, ref))
     if problems:
         raise DiscoveryError("%d problem(s):\n  %s" % (len(problems), "\n  ".join(problems)))
+
+
+def _cell(value):
+    """Escape a value for placement inside a Markdown table cell.
+
+    A literal pipe would otherwise be read as a column boundary and silently
+    misalign the row.
+    """
+    return str(value).replace("|", "\\|")
 
 
 def render(cfg):
@@ -72,7 +82,8 @@ def render(cfg):
     if cfg.get("demo_fit"):
         out += ["## Demo fit", "", "| Demo | Why | Verdict |", "|---|---|---|"]
         for row in cfg["demo_fit"]:
-            out.append("| %s | %s | %s |" % (row["demo"], row["why"], row["verdict"]))
+            out.append("| %s | %s | %s |" % (
+                _cell(row["demo"]), _cell(row["why"]), _cell(row["verdict"])))
         out.append("")
 
     session = cfg.get("session") or {}
@@ -83,7 +94,7 @@ def render(cfg):
                     session.get("deployment", "unstated")),
                 "", "| Start | Beat | Minutes |", "|---|---|---|"]
         for start, name, mins in session["beats"]:
-            out.append("| %s | %s | %s |" % (start, name, mins))
+            out.append("| %s | %s | %s |" % (_cell(start), _cell(name), _cell(mins)))
         out.append("")
 
     fork = cfg.get("fork") or {}
