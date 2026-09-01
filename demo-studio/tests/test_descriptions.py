@@ -93,13 +93,9 @@ class TestDescriptions(unittest.TestCase):
             "router description must positively claim a multi-artifact or "
             "resume-partway request, not rely on vagueness")
 
-    def test_every_description_fits_the_frontmatter_budget(self):
-        for name in ALL:
-            with self.subTest(skill=name):
-                path = os.path.join(SKILLS, name, "SKILL.md")
-                with open(path) as f:
-                    fm = re.match(r"^---\n(.*?)\n---\n", f.read(), re.S).group(1)
-                self.assertLessEqual(len(fm), 1024, f"{name}: {len(fm)} chars")
+    # The frontmatter 1024-char budget is already covered by
+    # test_layout.TestPluginLayout.test_frontmatter_is_valid; no need to
+    # duplicate it here.
 
     def test_the_router_names_workers_without_at_links(self):
         """@ links force-load files and burn context."""

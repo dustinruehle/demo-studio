@@ -7,7 +7,11 @@ root="$(dirname "$here")"
 out="$here/baseline"
 mkdir -p "$out"
 
-PY="${PY:-python3}"
+# The bare `python3` shim on PATH on this machine is broken (asdf, no version
+# set); default to a real interpreter rather than silently failing or, worse,
+# silently running something else. Override with PY=/path/to/python3 if this
+# absolute path is not right for your machine.
+PY="${PY:-/usr/bin/python3}"
 "$PY" "$root/skills/deck-flow-guide/assets/build_flow_guide.py" \
       "$root/skills/deck-flow-guide/assets/examples/flow_guide.example.json" \
       "$out/flow-guide.html"
