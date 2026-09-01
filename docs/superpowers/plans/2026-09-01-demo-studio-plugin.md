@@ -2117,10 +2117,22 @@ test('renderSvg geometry is bboxes scaled by SCALE', () => {
   const s = sample();
   const svg = kit.renderSvg(s);
   const b = kit.bboxes(s)[0];
-  assert.match(svg, new RegExp(`x="${b.x * kit.SCALE}"`));
-  assert.match(svg, new RegExp(`y="${b.y * kit.SCALE}"`));
-  assert.match(svg, new RegExp(`width="${b.w * kit.SCALE}"`));
-  assert.match(svg, new RegExp(`height="${b.h * kit.SCALE}"`));
+  // Use the kit's own converter, not raw multiplication: b.y * 100 is
+  // 220.00000000000003 for y=2.2, which is not what lands in the SVG.
+  const u = kit._internal.u;
+  assert.match(svg, new RegExp(`x="${u(b.x)}"`));
+  assert.match(svg, new RegExp(`y="${u(b.y)}"`));
+  assert.match(svg, new RegExp(`width="${u(b.w)}"`));
+  assert.match(svg, new RegExp(`height="${u(b.h)}"`));
+});
+
+test('SVG coordinates carry no floating point noise', () => {
+  const svg = kit.renderSvg(sample());
+  const coords = [...svg.matchAll(/(?:x|y|width|height)="([-\d.]+)"/g)].map((m) => m[1]);
+  assert.ok(coords.length > 0, 'no coordinates found to check');
+  for (const c of coords) {
+    assert.ok(!/\d{6,}/.test(c), `coordinate ${c} carries float noise`);
+  }
 });
 
 test('renderSvg escapes text so a config cannot inject markup', () => {
@@ -2222,7 +2234,10 @@ function bboxes(slide) {
   }));
 }
 
-function u(inches) { return inches * SCALE; }
+// Inches to SVG user units. Rounds to 2dp because JS floats are not exact:
+// 2.2 * 100 is 220.00000000000003 and 0.28 * 100 is 28.000000000000004, which
+// would litter every coordinate in the output. 2dp is far finer than a pixel here.
+function u(inches) { return Math.round(inches * SCALE * 100) / 100; }
 
 // Exact for op geometry, rounded for the canvas: u(13.333) is 1333.3000000000002
 // in floating point, which would make the viewBox unreadable and untestable.
@@ -2402,7 +2417,8 @@ test('PARITY: the SVG places the same geometry, scaled', () => {
   const svg = kit.renderSvg(s);
   for (const b of kit.bboxes(s)) {
     if (b.op !== 'box' && b.op !== 'frame') continue;
-    assert.match(svg, new RegExp(`x="${b.x * kit.SCALE}"[^>]*width="${b.w * kit.SCALE}"`),
+    const u = kit._internal.u;
+    assert.match(svg, new RegExp(`x="${u(b.x)}"[^>]*width="${u(b.w)}"`),
       `${b.op} geometry missing from the SVG`);
   }
 });
