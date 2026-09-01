@@ -32,15 +32,26 @@ function lintSlides(slides) {
       const b = boxes[oi];
       const at = { slide: si + 1, op: oi + 1 };
 
-      if (b.w <= 0 || b.h <= 0) {
-        findings.push(Object.assign({}, at, { rule: 'zero-size',
-          detail: `${o.op} has width ${b.w} and height ${b.h}` }));
-      } else if (b.x < 0 || b.y < 0
-                 || b.x + b.w > kit.LAYOUT.w || b.y + b.h > kit.LAYOUT.h) {
-        findings.push(Object.assign({}, at, { rule: 'off-canvas',
-          detail: `${o.op} spans x ${b.x} to ${(b.x + b.w).toFixed(3)} and `
-                + `y ${b.y} to ${(b.y + b.h).toFixed(3)}, `
-                + `slide is ${kit.LAYOUT.w} by ${kit.LAYOUT.h}` }));
+      let hasInvalidCoord = false;
+      for (const field of ['x', 'y', 'w', 'h']) {
+        if (!Number.isFinite(b[field])) {
+          findings.push(Object.assign({}, at, { rule: 'invalid-coord',
+            detail: `${field}=${b[field]}` }));
+          hasInvalidCoord = true;
+        }
+      }
+
+      if (!hasInvalidCoord) {
+        if (b.w <= 0 || b.h <= 0) {
+          findings.push(Object.assign({}, at, { rule: 'zero-size',
+            detail: `${o.op} has width ${b.w} and height ${b.h}` }));
+        } else if (b.x < 0 || b.y < 0
+                   || b.x + b.w > kit.LAYOUT.w || b.y + b.h > kit.LAYOUT.h) {
+          findings.push(Object.assign({}, at, { rule: 'off-canvas',
+            detail: `${o.op} spans x ${b.x} to ${(b.x + b.w).toFixed(3)} and `
+                  + `y ${b.y} to ${(b.y + b.h).toFixed(3)}, `
+                  + `slide is ${kit.LAYOUT.w} by ${kit.LAYOUT.h}` }));
+        }
       }
 
       if (textOf(o).includes(EM_DASH)) {

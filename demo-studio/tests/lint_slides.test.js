@@ -59,3 +59,31 @@ test('formatFindings is one line per finding', () => {
   const f = lintSlides(one((k) => { k.box(99, 1, 2, 1, {}); k.frame(1, 1, 2, 1, '#FFF000'); }));
   assert.strictEqual(formatFindings(f).trim().split('\n').length, 2);
 });
+
+test('flags NaN coordinate', () => {
+  const f = lintSlides(one((k) => k.box(NaN, 1, 2, 1, {})));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'invalid-coord');
+  assert.match(f[0].detail, /x.*NaN/);
+});
+
+test('flags undefined coordinate', () => {
+  const f = lintSlides(one((k) => k.box(1, undefined, 2, 1, {})));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'invalid-coord');
+  assert.match(f[0].detail, /y.*undefined/);
+});
+
+test('flags non-finite width', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, Infinity, 1, {})));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'invalid-coord');
+  assert.match(f[0].detail, /w.*Infinity/);
+});
+
+test('skips off-canvas check when coordinate is non-finite', () => {
+  const f = lintSlides(one((k) => k.box(NaN, 1, 2, 1, {})));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'invalid-coord');
+  assert.doesNotMatch(f[0].detail, /off-canvas/);
+});
