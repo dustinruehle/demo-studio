@@ -129,13 +129,25 @@ class TestPptxChecks(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "bad.pptx")
             self._build("bad", path)
-            self.assertTrue(all("slide1" in v.field for v in g.check_pptx(path)))
+            found = g.check_pptx(path)
+            self.assertTrue(found, "check_pptx should find violations in bad fixture")
+            self.assertTrue(all("slide1" in v.field for v in found))
 
     def test_a_clean_deck_passes(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "ok.pptx")
             self._build("clean", path)
             self.assertEqual(g.check_pptx(path), [])
+
+    def test_non_zip_file_returns_unreadable_violation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "notazip.pptx")
+            with open(path, "w") as f:
+                f.write("this is not a zip file")
+            found = g.check_pptx(path)
+            self.assertEqual(len(found), 1)
+            self.assertEqual(found[0].check, "pptx-unreadable")
+            self.assertEqual(found[0].field, "notazip.pptx")
 
 
 if __name__ == "__main__":

@@ -102,14 +102,22 @@ _PPTX_BANNED = (
 
 def check_pptx(path):
     """Scan a generated .pptx for constructs that do not survive Google Slides."""
+    import os
     out = []
-    with zipfile.ZipFile(path) as z:
-        names = sorted(n for n in z.namelist()
-                       if re.match(r"ppt/slides/slide\d+\.xml$", n))
-        for name in names:
-            slide = re.sub(r".*/(slide\d+)\.xml$", r"\1", name)
-            xml = z.read(name).decode("utf-8", "replace")
-            for check, pattern, detail in _PPTX_BANNED:
-                if pattern.search(xml):
-                    out.append(Violation(check, slide, detail))
+    try:
+        with zipfile.ZipFile(path) as z:
+            names = sorted(n for n in z.namelist()
+                           if re.match(r"ppt/slides/slide\d+\.xml$", n))
+            for name in names:
+                slide = re.sub(r".*/(slide\d+)\.xml$", r"\1", name)
+                xml = z.read(name).decode("utf-8", "replace")
+                for check, pattern, detail in _PPTX_BANNED:
+                    if pattern.search(xml):
+                        out.append(Violation(check, slide, detail))
+    except FileNotFoundError:
+        out.append(Violation("pptx-unreadable", os.path.basename(path),
+                            "file not found"))
+    except zipfile.BadZipFile:
+        out.append(Violation("pptx-unreadable", os.path.basename(path),
+                            "not a valid zip file"))
     return out
