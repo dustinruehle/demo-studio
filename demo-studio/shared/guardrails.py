@@ -24,7 +24,11 @@ class GuardrailError(Exception):
 
 
 def _word_re(word):
-    return re.compile(r"\b" + re.escape(word) + r"\b", re.IGNORECASE)
+    # Lookarounds, not \b: \b requires a word/non-word transition, which can
+    # never occur at a position where the term's own edge character is
+    # already non-word (C++, Yahoo!, (x)). Lookarounds only check what is
+    # adjacent to the match, not the match's own first/last character.
+    return re.compile(r"(?<!\w)" + re.escape(word) + r"(?!\w)", re.IGNORECASE)
 
 
 _TELL_RES = tuple((w, _word_re(w)) for w in AI_TELLS)

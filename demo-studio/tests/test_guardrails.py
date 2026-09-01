@@ -56,6 +56,20 @@ class TestPublicSafe(unittest.TestCase):
         self.assertEqual(len(g.check_tree({"a": "CONTOSO"}, banned=("Contoso",))), 1)
         self.assertEqual(g.check_tree({"a": "Contosoville"}, banned=("Contoso",)), [])
 
+    def test_symbol_edged_banned_terms_are_flagged(self):
+        """A banned term whose own edge character is non-word (C++, Yahoo!,
+        a bracketed form) must still be caught: \\b requires a word/non-word
+        transition, which cannot happen at an edge that is already non-word."""
+        self.assertEqual(len(g.check_tree({"a": "we used C++ for this"}, banned=("C++",))), 1)
+        self.assertEqual(len(g.check_tree({"a": "a Yahoo! account"}, banned=("Yahoo!",))), 1)
+        self.assertEqual(len(g.check_tree({"a": "look at (x) here"}, banned=("(x)",))), 1)
+
+    def test_contosoville_still_not_flagged_after_symbol_fix(self):
+        """Regression guard: fixing the symbol-edge bug must not loosen the
+        match into a substring match. Contoso must still not match inside
+        Contosoville."""
+        self.assertEqual(g.check_tree({"a": "Contosoville"}, banned=("Contoso",)), [])
+
 
 class TestTreeWalk(unittest.TestCase):
     def test_builds_dotted_paths_through_dicts_and_lists(self):
