@@ -7,8 +7,8 @@ bespoke, so this is code, not JSON).
 ## Hard rules (do not break)
 
 - **Google-Slides-safe:** block-arrow autoshapes only (`rightArrow`, `downArrow`,
-  `leftRightArrow`). NEVER line connectors or dashed lines (`prstDash`): Google
-  Slides silently drops them on import. Solid borders only. Hex without `#`.
+  the two the kit exposes). NEVER line connectors or dashed lines (`prstDash`):
+  Google Slides silently drops them on import. Solid borders only. Hex without `#`.
 - **Dark + readable:** dark background, lightened accents (the palette in the
   template). Check contrast in the render.
 - **No em dashes** in any slide text.
@@ -37,9 +37,10 @@ kit.recordSlide({ eyebrow, title, sub }, (k) => {
 touch pptxgenjs. `kit.renderPptx(slides, pres, palette)` and
 `kit.renderSvg(slide, palette)` replay those ops into the deck and the preview
 SVG respectively, from the one coordinate space, so the two cannot drift.
-`kit.bboxes(slide)` returns the recorded geometry in inches, for tests. Two
-example slide patterns are included in `build_create_slides.js`: "boxes + gap"
-and "diagram with block arrows".
+`kit.bboxes(slide)` returns the recorded geometry in inches, for tests. One
+example slide (two lanes, an arrow between them, a label under each) is
+included in `build_create_slides.js`; add one `recordSlide` block per
+additional net-new slide.
 
 ## The visual-QA loop (never skip)
 
@@ -47,11 +48,13 @@ Run these commands from `skills/create-slides/` (this skill's own directory),
 the same working directory the Quickstart in `SKILL.md` uses.
 
 ```bash
+(cd ../.. && npm install)  # plugin root, once: installs pptxgenjs for every skill
 . ../../shared/pptx_tools.sh
 PPTX_SKILL="$(find_pptx_skill)" || exit 1
 render_preflight || echo "proceeding without visual QA, deck is UNVERIFIED"
 
 node assets/build_create_slides.js
+python3 ../../shared/guardrails.py create-slides.pptx
 python3 "$PPTX_SKILL/scripts/office/validate.py" create-slides.pptx
 python3 "$PPTX_SKILL/scripts/office/soffice.py" --headless --convert-to pdf create-slides.pptx
 pdftoppm -jpeg -r 150 create-slides.pdf slide      # then VIEW every slide-N.jpg
@@ -64,7 +67,7 @@ labels colliding with a side frame: widen the gap or recenter the label.)
 
 ## Placement markers
 
-A small `SETUP FLOW · NN` eyebrow on each slide helps the presenter drop it into the
+A small `SETUP FLOW NN` eyebrow on each slide helps the presenter drop it into the
 right spot in the aggregate. Offer to strip these for a clean merge-ready copy.
 
 ## Read the pptx skill first
