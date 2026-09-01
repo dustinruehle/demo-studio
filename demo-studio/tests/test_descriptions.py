@@ -65,6 +65,22 @@ class TestDescriptions(unittest.TestCase):
             with self.subTest(claimed=claimed):
                 self.assertNotIn(claimed, router)
 
+    def test_the_router_and_demo_discovery_do_not_both_claim_a_bare_transcript_share(self):
+        """A bare transcript share ("here's the transcript from our call") is the
+        router's job: its own entry table routes that phrase onward through the
+        whole pipeline. demo-discovery must not also fire on that same unqualified
+        ask, or a selector match can land the pipeline at stage 1 in isolation
+        when the user wanted the whole set."""
+        router = description("demo-studio").lower()
+        discovery = description("demo-discovery").lower()
+        self.assertIn("transcript", router,
+                      "the router should own the bare transcript-share trigger")
+        self.assertIn("transcript", discovery,
+                      "demo-discovery should still anchor on transcripts for its narrower ask")
+        self.assertIn("without asking for the rest of the pipeline", discovery,
+                      "demo-discovery must exclude the full-pipeline ask that the router "
+                      "owns, or a bare transcript share can match here instead of the router")
+
     def test_every_description_fits_the_frontmatter_budget(self):
         for name in ALL:
             with self.subTest(skill=name):

@@ -2,8 +2,8 @@
 name: create-slides
 description: >-
   Use when someone wants net-new slides built, a dark PPTX that drops into an
-  aggregate deck, slide mockups or diagrams for a demo deck, or wants existing
-  create slides tweaked and re-rendered.
+  aggregate deck, slide mockups or diagrams for a demo deck, or wants the
+  net-new slides it already built tweaked and re-rendered.
 ---
 
 # Create Slides

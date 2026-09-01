@@ -2,13 +2,13 @@
 name: presenter-guide
 description: >-
   Use when someone wants a presenter guide, speaker notes, a teleprompter script,
-  per-slide talking points or questions to ask, a run of show, or wants a demo
-  runbook turned into a live walkthrough for delivering a deck.
+  per-slide talking points or questions to ask and expect back, a run of show, or
+  wants a demo runbook turned into a live walkthrough for delivering a deck.
 ---
 
 # Presenter Guide
 
-Write this against the FINAL assembled deck, not a draft: slide numbers, order,
+Write this against the FINAL aggregate deck, not a draft: slide numbers, order,
 and content need to be locked first, or the guide is presenting a deck that
 does not exist yet. Read `references/presenter-guide-format.md`. Per slide:
 Talking points, Say (teleprompter, one beat per line), and Ask. Fold a demo

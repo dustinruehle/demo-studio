@@ -1,10 +1,11 @@
 ---
 name: demo-discovery
 description: >-
-  Use when a call transcript needs reading for demo signals, when someone asks
-  which demo to lead with or skip, who will be in the room, what stack or
-  constraints the customer stated, or wants a demo fit analysis, a session beat
-  sheet, or a grounded versus inferred record of what was actually said.
+  Use when someone wants a transcript's demo signals pulled out on their own,
+  which demo to lead with or skip, who is really in the room, the stated stack
+  or constraints, a demo fit analysis, a session beat sheet, a grounded versus
+  inferred record of what was said, or wants to scope a single-demo v1 versus
+  a fused POC-commitment v2, without asking for the rest of the pipeline.
 ---
 
 # Demo Discovery
