@@ -38,6 +38,14 @@ const slides = [
   // Add one recordSlide block per net-new slide.
 ];
 
+const { lintSlides, formatFindings } = require('./lint_slides');
+const findings = lintSlides(slides);
+if (findings.length) {
+  console.error(`slide lint failed with ${findings.length} finding(s):`);
+  console.error(formatFindings(findings));
+  process.exit(1);
+}
+
 const pres = new pptxgen();
 pres.layout = 'LAYOUT_WIDE';
 kit.renderPptx(slides, pres, palette);
