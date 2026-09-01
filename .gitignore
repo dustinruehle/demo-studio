@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+demo-studio/node_modules/
+demo-studio/create-slides.pptx
+demo-studio/slide-previews.json

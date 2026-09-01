@@ -146,8 +146,68 @@ function renderSvg(slide, palette) {
   ].join('\n');
 }
 
+function bare(color) { return String(color || '000000').replace(/^#/, '').toUpperCase(); }
+
+/**
+ * Replay recorded slides into a pptxgenjs presentation.
+ * `pres` is injected so tests can pass a stub and prove parity without the dep.
+ */
+function renderPptx(slides, pres, palette) {
+  const p = Object.assign({}, DEFAULT_PALETTE, palette || {});
+  const S = pres.ShapeType;
+  for (const slide of slides) {
+    const s = pres.addSlide();
+    s.background = { color: bare(p.bg) };
+    s.addText(slide.eyebrow, { x: 0.6, y: 0.42, w: 8, h: 0.3, fontFace: p.mono,
+      fontSize: 11, color: bare('8E6BE6'), charSpacing: 2, margin: 0 });
+    s.addText(slide.title, { x: 0.58, y: 0.72, w: 12.2, h: 0.9, fontFace: p.heading,
+      fontSize: 33, bold: true, color: bare(p.txt), margin: 0 });
+    s.addText(slide.sub, { x: 0.6, y: 1.62, w: 11.6, h: 0.5, fontFace: p.body,
+      fontSize: 15, color: bare(p.mut), margin: 0 });
+
+    for (const o of slide.ops) {
+      switch (o.op) {
+        case 'box':
+          s.addText(o.opts.rt || '', {
+            x: o.x, y: o.y, w: o.w, h: o.h,
+            shape: S.roundRect, rectRadius: 0.06,
+            fill: { color: bare(o.opts.fill || p.panel) },
+            line: { color: bare(o.opts.line || p.border), width: o.opts.lw || 1 },
+            align: o.opts.align || 'center',
+            valign: o.opts.valign || 'middle',
+            margin: o.opts.margin != null ? o.opts.margin : 6,
+          });
+          break;
+        case 'frame':
+          s.addShape(S.roundRect, {
+            x: o.x, y: o.y, w: o.w, h: o.h, rectRadius: 0.05,
+            fill: { color: bare(p.bg) },
+            line: { color: bare(o.color), width: 1 },
+          });
+          break;
+        case 'arrowR':
+          s.addShape(S.rightArrow, { x: o.x, y: o.y, w: o.w, h: o.h,
+            fill: { color: bare(o.color) }, line: { type: 'none' } });
+          break;
+        case 'arrowD':
+          s.addShape(S.downArrow, { x: o.x, y: o.y, w: o.w, h: o.h,
+            fill: { color: bare(o.color) }, line: { type: 'none' } });
+          break;
+        case 'label':
+          s.addText(o.text, { x: o.x, y: o.y, w: o.w, h: LABEL_H,
+            fontFace: p.mono, fontSize: o.size || 9, color: bare(o.color),
+            align: o.align || 'center', bold: true, charSpacing: 1, margin: 0 });
+          break;
+        default:
+          throw new Error(`slidekit: unknown op ${o.op}`);
+      }
+    }
+  }
+  return pres;
+}
+
 module.exports = {
   LAYOUT, SCALE, LABEL_H,
-  recordSlide, bboxes, renderSvg,
+  recordSlide, bboxes, renderSvg, renderPptx,
   _internal: { hex, esc, plainText, u, renderOp, DEFAULT_PALETTE },
 };

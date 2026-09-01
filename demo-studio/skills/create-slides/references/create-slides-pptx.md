@@ -26,11 +26,14 @@ patterns are included: "boxes + gap" and "diagram with block arrows".
 ## The visual-QA loop (never skip)
 
 ```bash
-npm i pptxgenjs
+. ../../../shared/pptx_tools.sh
+PPTX_SKILL="$(find_pptx_skill)" || exit 1
+render_preflight || echo "proceeding without visual QA, deck is UNVERIFIED"
+
 node build_create_slides.js
-python3 /mnt/skills/public/pptx/scripts/office/validate.py create-slides.pptx
-python3 /mnt/skills/public/pptx/scripts/office/soffice.py --headless --convert-to pdf create-slides.pptx
-pdftoppm -jpeg -r 150 create-slides.pdf slide
+python3 "$PPTX_SKILL/scripts/office/validate.py" create-slides.pptx
+python3 "$PPTX_SKILL/scripts/office/soffice.py" --headless --convert-to pdf create-slides.pptx
+pdftoppm -jpeg -r 150 create-slides.pdf slide      # then VIEW every slide-N.jpg
 ```
 
 Then VIEW every `slide-N.jpg`. Look for: label/arrow collisions, text touching a
@@ -45,5 +48,6 @@ right spot in the aggregate. Offer to strip these for a clean merge-ready copy.
 
 ## Read the pptx skill first
 
-Before generating, read `/mnt/skills/public/pptx/SKILL.md`. It mandates pptxgenjs
-for new decks and documents the validate/render scripts referenced above.
+Before generating, read the pptx skill's SKILL.md at the path `find_pptx_skill`
+resolves. It mandates pptxgenjs for new decks and documents the validate/render
+scripts referenced above.

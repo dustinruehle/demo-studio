@@ -96,3 +96,83 @@ test('colours are accepted with or without a leading hash', () => {
   assert.match(a, /#8E6BE6/);
   assert.match(b, /#8E6BE6/);
 });
+
+// A stub standing in for pptxgenjs, recording what the backend asks for.
+function stubPres() {
+  const slides = [];
+  return {
+    ShapeType: { roundRect: 'roundRect', rightArrow: 'rightArrow', downArrow: 'downArrow' },
+    slides,
+    addSlide() {
+      const s = { texts: [], shapes: [], background: null };
+      s.addText = (text, opts) => s.texts.push({ text, opts });
+      s.addShape = (type, opts) => s.shapes.push({ type, opts });
+      slides.push(s);
+      return s;
+    },
+  };
+}
+
+test('renderPptx emits one slide per recorded slide', () => {
+  const pres = stubPres();
+  kit.renderPptx([sample(), sample()], pres);
+  assert.strictEqual(pres.slides.length, 2);
+});
+
+test('PARITY: every op has the same bbox in both backends', () => {
+  const s = sample();
+  const pres = stubPres();
+  kit.renderPptx([s], pres);
+  // renderPptx always emits exactly three header texts first (eyebrow, title,
+  // sub). Skip them structurally: filtering by coordinate does not work, because
+  // the header sits at x 0.58 and 0.6, inside the range real ops occupy.
+  const HEADER_TEXTS = 3;
+  const placed = pres.slides[0].texts.slice(HEADER_TEXTS)
+    .concat(pres.slides[0].shapes)
+    .map((e) => e.opts);
+  const boxes = kit.bboxes(s);
+  assert.strictEqual(placed.length, boxes.length,
+    'the PPTX backend placed a different number of elements than there are ops');
+  // Ops are compared by bbox membership, not index: box/label become texts and
+  // frame/arrow become shapes, so the concatenated order is not the op order.
+  const key = (o) => `${o.x},${o.y},${o.w},${o.h}`;
+  const placedKeys = new Set(placed.map(key));
+  boxes.forEach((b) => {
+    assert.ok(placedKeys.has(key(b)),
+      `op ${b.op} bbox ${key(b)} was not placed by the PPTX backend`);
+  });
+});
+
+test('PARITY: the SVG places the same geometry, scaled', () => {
+  const s = sample();
+  const svg = kit.renderSvg(s);
+  for (const b of kit.bboxes(s)) {
+    if (b.op !== 'box' && b.op !== 'frame') continue;
+    const u = kit._internal.u;
+    assert.match(svg, new RegExp(`x="${u(b.x)}"[^>]*width="${u(b.w)}"`),
+      `${b.op} geometry missing from the SVG`);
+  }
+});
+
+test('the PPTX backend uses block arrows, never connectors', () => {
+  const pres = stubPres();
+  kit.renderPptx([sample()], pres);
+  const types = pres.slides[0].shapes.map((s) => s.type);
+  assert.ok(types.includes('rightArrow'));
+  assert.ok(!types.some((t) => /onnector|^line$/.test(t)));
+});
+
+test('the PPTX backend never emits a dashed line', () => {
+  const pres = stubPres();
+  kit.renderPptx([sample()], pres);
+  const all = JSON.stringify(pres.slides[0]);
+  assert.doesNotMatch(all, /prstDash|dashType|"dash"/);
+});
+
+test('the PPTX backend strips the leading hash from colours', () => {
+  const pres = stubPres();
+  kit.renderPptx([kit.recordSlide({ eyebrow: '', title: '', sub: '' },
+    (k) => k.frame(1, 1, 2, 2, '#8E6BE6'))], pres);
+  const line = pres.slides[0].shapes.find((s) => s.opts.line);
+  assert.strictEqual(line.opts.line.color, '8E6BE6');
+});
