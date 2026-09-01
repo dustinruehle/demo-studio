@@ -62,14 +62,5 @@
     "heading": "Fraunces",
     "body": "IBM Plex Sans",
     "mono": "JetBrains Mono"
-  },
-  "acts": {
-    "Open": "#1C1526",
-    "Frame": "#B07A00",
-    "Model": "#4C2889",
-    "Prime": "#2E7D5B",
-    "Prove": "#C0503A",
-    "Handoff": "#6E4FC0",
-    "Demo": "#1C1526"
   }
 }

@@ -200,3 +200,31 @@ test('the SVG box text uses the same colour rule as the PPTX backend', () => {
   assert.match(svg, /<text[^>]*fill="#8E6BE6"[^>]*>x<\/text>/,
     'box text overriding colour must be painted with the override, not the default palette text colour');
 });
+
+// The eyebrow colour used to be a literal '8E6BE6' baked into both backends,
+// so changing brand.json's pptx.indigo never moved it. Both must now read
+// the palette, with DEFAULT_PALETTE itself sourced from brand.json so a
+// caller that renders with no palette argument at all still gets a colour
+// that traces back to brand.json.
+const brandJson = require(path.join(__dirname, '..', 'shared', 'brand.json'));
+
+test('DEFAULT_PALETTE.indigo is sourced from brand.json, not a second literal', () => {
+  assert.strictEqual(kit._internal.DEFAULT_PALETTE.indigo,
+    brandJson.surfaces.pptx.indigo.replace(/^#/, ''));
+});
+
+test('renderSvg paints the eyebrow with the palette indigo, honouring an override', () => {
+  const svg = kit.renderSvg(
+    kit.recordSlide({ eyebrow: 'EYE', title: '', sub: '' }, () => {}),
+    { indigo: '112233' });
+  assert.match(svg, /fill="#112233"[^>]*>EYE<\/text>/);
+});
+
+test('renderPptx paints the eyebrow with the palette indigo, honouring an override', () => {
+  const pres = stubPres();
+  kit.renderPptx(
+    [kit.recordSlide({ eyebrow: 'EYE', title: '', sub: '' }, () => {})],
+    pres, { indigo: '112233' });
+  const eyebrow = pres.slides[0].texts.find((t) => t.text === 'EYE');
+  assert.strictEqual(eyebrow.opts.color, '112233');
+});

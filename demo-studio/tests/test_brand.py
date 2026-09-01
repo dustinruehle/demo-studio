@@ -41,12 +41,18 @@ class TestBrandTokens(unittest.TestCase):
         with self.assertRaises(KeyError):
             brand.tokens("nope")
 
-    def test_fonts_and_acts(self):
-        self.assertEqual(brand.FONTS["heading"], "Fraunces")
-        self.assertEqual(brand.FONTS["body"], "IBM Plex Sans")
-        self.assertEqual(brand.FONTS["mono"], "JetBrains Mono")
-        self.assertEqual(brand.acts()["Model"], "#4C2889")
-        self.assertEqual(brand.acts()["Prove"], "#C0503A")
+    def test_acts_and_fonts_python_bindings_are_gone(self):
+        """brand.acts() and brand.FONTS had zero Python consumers (act colour
+        comes from each config's own `acts` field; font names are still
+        literal strings in both CSS blocks). Deleted rather than left as a
+        dead single-source block nobody can rely on. The `acts` key is also
+        gone from brand.json itself, since nothing reads it either language.
+        `fonts` stays in brand.json: skills/create-slides/assets slidekit.js
+        and build_create_slides.js read it directly as JSON."""
+        self.assertFalse(hasattr(brand, "acts"))
+        self.assertFalse(hasattr(brand, "FONTS"))
+        self.assertNotIn("acts", brand.load())
+        self.assertIn("fonts", brand.load())
 
     def test_every_value_is_a_hex_colour(self):
         for surface in ("flow_guide", "presenter_guide", "pptx"):
@@ -91,6 +97,35 @@ class TestNoHexLiteralsRemain(unittest.TestCase):
                     found = re.findall(r"#[0-9A-Fa-f]{6}\b", f.read())
                 self.assertEqual(found, [],
                                  f"{os.path.basename(path)} still hardcodes {found}")
+
+    def test_js_assets_contain_no_hex_literals(self):
+        """The Python-only regex above requires a leading '#' and so cannot
+        see slidekit.js's hardcoded '8E6BE6' (pptxgenjs wants bare hex, no
+        '#'). Scan skills/**/assets/*.js for a quoted 6-digit hex string with
+        or without the hash, which is how a JS colour literal actually shows
+        up in this codebase.
+
+        000000 and ffffff are excluded: they are the "no colour supplied"
+        safety fallback inside the hex()/bare() normalisers, unreachable at
+        every real call site (each already resolves a real palette colour
+        before calling in), not a duplicated brand value. Every OTHER hex
+        string is a real colour and must trace to brand.json.
+        """
+        pattern = re.compile(r"""['"]#?([0-9A-Fa-f]{6})['"]""")
+        neutral_fallbacks = {"000000", "ffffff"}
+        for dirpath, _, files in os.walk(os.path.join(ROOT, "skills")):
+            if os.path.basename(dirpath) != "assets":
+                continue
+            for fn in files:
+                if not fn.endswith(".js"):
+                    continue
+                path = os.path.join(dirpath, fn)
+                with self.subTest(path=os.path.relpath(path, ROOT)):
+                    with open(path) as f:
+                        found = [m for m in pattern.findall(f.read())
+                                 if m.lower() not in neutral_fallbacks]
+                    self.assertEqual(found, [],
+                                     f"{os.path.relpath(path, ROOT)} still hardcodes {found}")
 
 
 if __name__ == "__main__":

@@ -49,10 +49,3 @@ def root_block(surface, indent="  ", sep="\n"):
     ]
     return ":root{" + sep + sep.join(lines) + sep + "}"
 
-
-def acts():
-    """Act name to hex, used for presenter-guide nav colouring."""
-    return dict(load()["acts"])
-
-
-FONTS = load()["fonts"]

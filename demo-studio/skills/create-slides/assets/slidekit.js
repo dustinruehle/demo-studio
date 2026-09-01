@@ -10,9 +10,19 @@
   The SVG mirror uses viewBox 0 0 1333 750, the same rectangle scaled by 100.
 */
 
+const path = require('node:path');
+
 const LAYOUT = { w: 13.333, h: 7.5 };
 const SCALE = 100;
 const LABEL_H = 0.28; // inherited from the original label() helper
+
+// brand.json is the single source for colour and type; even the library's
+// own standalone-use default palette reads from it rather than hardcoding a
+// second copy, so changing one value in brand.json moves it everywhere,
+// including a caller that never builds its own palette object.
+const _BRAND = require(path.join(__dirname, '..', '..', '..', 'shared', 'brand.json'));
+const _PPTX = _BRAND.surfaces.pptx;
+const _nohash = (c) => String(c || '').replace(/^#/, '');
 
 function hex(color) {
   const c = String(color || '000000').replace(/^#/, '');
@@ -127,8 +137,9 @@ function renderOp(o, palette) {
 }
 
 const DEFAULT_PALETTE = {
-  bg: '17131F', panel: '241C33', border: '3A3350', txt: 'F4F1FB',
-  mut: 'B4AECA', body: 'IBM Plex Sans', mono: 'JetBrains Mono', heading: 'Fraunces',
+  bg: _nohash(_PPTX.bg), panel: _nohash(_PPTX.panel), border: _nohash(_PPTX.border),
+  txt: _nohash(_PPTX.txt), mut: _nohash(_PPTX.mut), indigo: _nohash(_PPTX.indigo),
+  body: _BRAND.fonts.body, mono: _BRAND.fonts.mono, heading: _BRAND.fonts.heading,
 };
 
 /** Render one slide to a standalone SVG string for a flow-guide preview. */
@@ -140,7 +151,7 @@ function renderSvg(slide, palette) {
       + `preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%" `
       + `xmlns="http://www.w3.org/2000/svg">`,
     `  <rect x="0" y="0" width="${viewBoxDim(LAYOUT.w)}" height="${viewBoxDim(LAYOUT.h)}" fill="${hex(p.bg)}"/>`,
-    `  <text x="60" y="52" fill="${hex('8E6BE6')}" font-family="${p.mono}" `
+    `  <text x="60" y="52" fill="${hex(p.indigo)}" font-family="${p.mono}" `
       + `font-size="14" letter-spacing="2">${esc(slide.eyebrow)}</text>`,
     `  <text x="58" y="105" fill="${hex(p.txt)}" font-family="${p.heading}" `
       + `font-size="42" font-weight="700">${esc(slide.title)}</text>`,
@@ -164,7 +175,7 @@ function renderPptx(slides, pres, palette) {
     const s = pres.addSlide();
     s.background = { color: bare(p.bg) };
     s.addText(slide.eyebrow, { x: 0.6, y: 0.42, w: 8, h: 0.3, fontFace: p.mono,
-      fontSize: 11, color: bare('8E6BE6'), charSpacing: 2, margin: 0 });
+      fontSize: 11, color: bare(p.indigo), charSpacing: 2, margin: 0 });
     s.addText(slide.title, { x: 0.58, y: 0.72, w: 12.2, h: 0.9, fontFace: p.heading,
       fontSize: 33, bold: true, color: bare(p.txt), margin: 0 });
     s.addText(slide.sub, { x: 0.6, y: 1.62, w: 11.6, h: 0.5, fontFace: p.body,
