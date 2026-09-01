@@ -7,8 +7,8 @@ designed choices must be labeled as such.
 
 When you propose a demo domain, a scenario, or a talking point, split it:
 
-- **Grounded** — the customer said it. Quote or attribute it.
-- **Inferred** — you designed it to exercise their stated needs. Say so plainly.
+- **Grounded**: the customer said it. Quote or attribute it.
+- **Inferred**: you designed it to exercise their stated needs. Say so plainly.
 
 When the user asks "did they actually say that?", answer with a small table:
 element | what the call contains | grounded or inferred. Do not smuggle inferences
@@ -23,7 +23,7 @@ traced, it probably doesn't belong.
 ## Reference wins (for build specs and technical claims)
 
 - Verify SDK/API names, version floors, doc URLs, and feature status against the
-  authoritative reference (product docs, the SDK reference files, the samples) —
+  authoritative reference (product docs, the SDK reference files, the samples);
   not memory.
 - In the build spec, state explicitly that the skill reference files and pattern
   pages OVERRIDE anything in the spec or in sample code. Mark anything you couldn't
@@ -42,5 +42,5 @@ warranty dataset) is fine; a customer's name is not.
 ## No AI-tells
 
 Trim filler ("seamless", "robust", "leverage", "genuinely", "delve", "honestly",
-"actually"). No em dashes anywhere — commas or restructure. Engineer-to-engineer
+"actually"). No em dashes anywhere: commas or restructure. Engineer-to-engineer
 register: terse, direct, commit to a recommendation rather than hedge.

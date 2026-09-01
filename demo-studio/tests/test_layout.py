@@ -49,15 +49,16 @@ class TestPluginLayout(unittest.TestCase):
                                      f"{name}: frontmatter is {len(fm)} chars, limit 1024")
                 self.assertIn("description:", fm, f"{name}: no description field")
 
-    def test_no_em_dashes_in_any_skill_file(self):
-        for dirpath, _, files in os.walk(os.path.join(ROOT, "skills")):
-            for fn in files:
-                if not fn.endswith((".md", ".py", ".js", ".json")):
-                    continue
-                path = os.path.join(dirpath, fn)
-                with self.subTest(path=os.path.relpath(path, ROOT)):
-                    with open(path) as f:
-                        self.assertNotIn("—", f.read())
+    def test_no_em_dashes_in_skills_or_shared(self):
+        for base in ("skills", "shared"):
+            for dirpath, _, files in os.walk(os.path.join(ROOT, base)):
+                for fn in files:
+                    if not fn.endswith((".md", ".py", ".js", ".json")):
+                        continue
+                    path = os.path.join(dirpath, fn)
+                    with self.subTest(path=os.path.relpath(path, ROOT)):
+                        with open(path) as f:
+                            self.assertNotIn("—", f.read())
 
 
 if __name__ == "__main__":
