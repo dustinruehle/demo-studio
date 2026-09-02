@@ -6,3 +6,6 @@ demo-studio/**/create-slides.pdf
 demo-studio/**/slide-previews.json
 demo-studio/**/slide-*.jpg
 demo-studio/**/my_slides.js
+
+# SDD scratch workspace, not source
+.superpowers/
