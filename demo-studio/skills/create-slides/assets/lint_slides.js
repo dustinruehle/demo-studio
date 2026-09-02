@@ -7,7 +7,28 @@
 const kit = require('./slidekit');
 
 const EM_DASH = '\u2014';
-const MIN_CONTRAST = 4.5; // WCAG AA for normal-size text
+// WCAG AA has two tiers, and this deck spans both. Large text is 18pt or
+// larger, or 14pt or larger when bold, and needs 3:1; everything else needs
+// 4.5:1. Gating every run at 4.5 rejects the brand's own accents on 18pt box
+// text; gating everything at 3 lets unreadable 9pt labels through.
+const CONTRAST_NORMAL = 4.5;
+const CONTRAST_LARGE = 3.0;
+
+// pptxgenjs default when renderPptx passes no fontSize, which is the case for
+// box text. Keep in step with slidekit's box case.
+const DEFAULT_PT = 18;
+
+// The sizes renderPptx actually emits for the three header texts. Keep in step
+// with slidekit's header block: eyebrow 11, title 33 bold, sub 15.
+const HEADER_PT = {
+  eyebrow: { pt: 11, bold: false },
+  title: { pt: 33, bold: true },
+  sub: { pt: 15, bold: false },
+};
+
+function minContrast(pt, bold) {
+  return (pt >= 18 || (bold && pt >= 14)) ? CONTRAST_LARGE : CONTRAST_NORMAL;
+}
 
 function textOf(o) {
   if (o.op === 'label') return String(o.text == null ? '' : o.text);
@@ -74,11 +95,12 @@ function lintSlides(slides, palette) {
         findings.push(Object.assign({}, at0, { rule: 'em-dash',
           detail: `${field}: use a comma or restructure` }));
       }
+      const need = minContrast(HEADER_PT[field].pt, HEADER_PT[field].bold);
       const ratio = contrastRatio(color, p.bg);
-      if (ratio < MIN_CONTRAST) {
+      if (ratio < need) {
         findings.push(Object.assign({}, at0, { rule: 'low-contrast',
           detail: `${field} ${normHex(color)} on ${normHex(p.bg)} is `
-                + `${ratio.toFixed(2)}:1, needs ${MIN_CONTRAST}:1` }));
+                + `${ratio.toFixed(2)}:1, needs ${need}:1` }));
       }
     }
 
@@ -125,14 +147,21 @@ function lintSlides(slides, palette) {
       // renderPptx): an explicit per-op override, else the palette default.
       // This is the exact pair that shipped black text on a near-black
       // panel, invisible to every other gate.
-      if (o.op === 'box') {
-        const textColor = (o.opts && o.opts.color) || p.txt;
-        const bgColor = (o.opts && o.opts.fill) || p.panel;
+      if (o.op === 'box' || o.op === 'label') {
+        // A label sits on the slide background, a box on its own fill.
+        const isBox = o.op === 'box';
+        const textColor = isBox ? ((o.opts && o.opts.color) || p.txt) : (o.color || p.faint);
+        const bgColor = isBox ? ((o.opts && o.opts.fill) || p.panel) : p.bg;
+        // Box text carries no fontSize, so it renders at the pptxgenjs default
+        // and lands in the large tier. Labels are small and bold, which is not
+        // large enough to qualify, so they take the stricter threshold.
+        const pt = isBox ? DEFAULT_PT : (o.size || 9);
+        const need = minContrast(pt, !isBox);
         const ratio = contrastRatio(textColor, bgColor);
-        if (ratio < MIN_CONTRAST) {
+        if (ratio < need) {
           findings.push(Object.assign({}, at, { rule: 'low-contrast',
-            detail: `text ${normHex(textColor)} on ${normHex(bgColor)} is `
-                  + `${ratio.toFixed(2)}:1, needs ${MIN_CONTRAST}:1` }));
+            detail: `${o.op} text ${normHex(textColor)} on ${normHex(bgColor)} is `
+                  + `${ratio.toFixed(2)}:1, needs ${need}:1` }));
         }
       }
     });

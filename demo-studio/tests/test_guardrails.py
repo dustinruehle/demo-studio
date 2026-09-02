@@ -228,3 +228,24 @@ class TestGuardrailsCli(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMetaKeyScoping(unittest.TestCase):
+    """The meta-key exemption exists so banned_terms does not match itself. It
+    must not reach a nested key that merely shares the name, which would be an
+    unscannable hole in the gate."""
+
+    def test_top_level_meta_keys_are_exempt(self):
+        cfg = {"banned_terms": ["Contoso"], "why": "clean text"}
+        self.assertEqual(g.check_tree(cfg, banned=cfg["banned_terms"]), [])
+
+    def test_a_nested_key_of_the_same_name_is_still_scanned(self):
+        cfg = {"session": {"banned_terms": "Contoso said seamless things"},
+               "banned_terms": ["Contoso"]}
+        checks = {v.check for v in g.check_tree(cfg, banned=cfg["banned_terms"])}
+        self.assertIn("public-safe", checks)
+        self.assertIn("ai-tell", checks)
+
+    def test_a_nested_allow_words_is_still_scanned(self):
+        cfg = {"fork": {"allow_words": "a seamless choice"}}
+        self.assertIn("ai-tell", {v.check for v in g.check_tree(cfg)})

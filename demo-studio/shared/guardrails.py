@@ -73,7 +73,11 @@ def check_tree(obj, allowlist=(), banned=(), _path=""):
     out = []
     if isinstance(obj, dict):
         for key, value in obj.items():
-            if key in _META_KEYS:
+            # Only at the top level. These are the config's own meta fields,
+            # so scanning them makes every banned term match itself; but a
+            # nested key that merely shares the name is ordinary content and
+            # must still be scanned.
+            if not _path and key in _META_KEYS:
                 continue
             child = key if not _path else "%s.%s" % (_path, key)
             out.extend(check_tree(value, allowlist, banned, child))
