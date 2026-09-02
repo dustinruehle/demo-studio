@@ -26,8 +26,11 @@ class DiscoveryError(Exception):
 
 def check_signals(cfg):
     """Rules the schema dialect cannot express."""
-    seen = set()
     problems = []
+    engagement = cfg.get("engagement")
+    if not isinstance(engagement, str) or not engagement.strip():
+        problems.append("engagement: must not be blank")
+    seen = set()
     for i, signal in enumerate(cfg["signals"]):
         sid = signal["id"]
         if not ID_RE.match(sid):
@@ -35,6 +38,11 @@ def check_signals(cfg):
         if sid in seen:
             problems.append("signals[%d].id: duplicate id %r" % (i, sid))
         seen.add(sid)
+        text = signal.get("text")
+        if not isinstance(text, str) or not text.strip():
+            # minLength does not exclude whitespace, so a blank bullet would
+            # otherwise pass the schema and reach the rendered record.
+            problems.append("signals[%d] (%s): text must not be blank" % (i, sid))
         if signal["kind"] == "grounded":
             for field in ("quote", "attribution"):
                 value = signal.get(field)

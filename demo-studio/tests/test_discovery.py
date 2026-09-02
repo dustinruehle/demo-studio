@@ -174,6 +174,34 @@ class TestSignalRules(unittest.TestCase):
             build_discovery.check_signals(cfg)
         self.assertIn("attribution", str(ctx.exception))
 
+    def test_a_whitespace_only_signal_text_is_rejected(self):
+        """minLength does not exclude spaces, so a whitespace-only `text`
+        passes the schema. A blank bullet in the rendered record is not as
+        severe as a fabricated citation, but it is the same class of bug:
+        strip before testing, the way quote/attribution already do."""
+        cfg = load_example()
+        signal = cfg["signals"][0]
+        signal["text"] = "   "
+        with self.assertRaises(build_discovery.DiscoveryError) as ctx:
+            build_discovery.check_signals(cfg)
+        self.assertIn("text", str(ctx.exception))
+        self.assertIn(signal["id"], str(ctx.exception))
+
+    def test_a_tab_only_signal_text_is_rejected(self):
+        cfg = load_example()
+        signal = cfg["signals"][0]
+        signal["text"] = "\t"
+        with self.assertRaises(build_discovery.DiscoveryError) as ctx:
+            build_discovery.check_signals(cfg)
+        self.assertIn("text", str(ctx.exception))
+
+    def test_a_whitespace_only_engagement_is_rejected(self):
+        cfg = load_example()
+        cfg["engagement"] = "   "
+        with self.assertRaises(build_discovery.DiscoveryError) as ctx:
+            build_discovery.check_signals(cfg)
+        self.assertIn("engagement", str(ctx.exception))
+
     def test_a_legitimate_grounded_signal_still_passes(self):
         cfg = load_example()
         build_discovery.check_signals(cfg)  # must not raise
