@@ -123,7 +123,11 @@ follow-ups that are still open. It is candid on purpose.
 
 ## Credit
 
-The original single skill was written by a colleague and shared through Claude
-Desktop. This repository restructured it into a plugin and made its stated
-disciplines enforceable. The generators, the format, and the brand system are
-substantially their work.
+The original `demo-deck-studio` skill was written by **Dustin Ruehle**, and
+shared through Claude Desktop. The pipeline, the generators, the guide formats
+and the brand system are his work.
+
+This repository restructures that skill into a plugin of six individually
+invocable skills and makes its stated disciplines enforceable, so a violation
+fails a build rather than depending on anyone remembering it. Maintained by
+Dan Nemeth.
