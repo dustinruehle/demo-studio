@@ -18,14 +18,19 @@ Do not do the work here, and do not force a stage nobody asked for.
 
 | They say | Go to |
 |---|---|
-| "Here's a transcript" | `demo-studio:demo-discovery`, then onward |
-| "Which demo should we lead with" | `demo-studio:demo-discovery` |
-| "Spec the demo" | `demo-studio:build-spec` |
-| "Piece the deck for this room" | `demo-studio:deck-flow-guide` |
-| "Build the net-new slides" | `demo-studio:create-slides` |
-| "Make the presenter guide" | `demo-studio:presenter-guide` |
-| "I know the demo, build the deck and guides" | `demo-studio:deck-flow-guide`, `demo-studio:create-slides`, `demo-studio:presenter-guide` |
+| "Here's a transcript" | `demo-discovery`, then onward |
+| "Which demo should we lead with" | `demo-discovery` |
+| "Spec the demo" | `build-spec` |
+| "Piece the deck for this room" | `deck-flow-guide` |
+| "Build the net-new slides" | `create-slides` |
+| "Make the presenter guide" | `presenter-guide` |
+| "I know the demo, build the deck and guides" | `deck-flow-guide`, `create-slides`, `presenter-guide` |
 | Genuinely unclear | Ask which stage. Do not guess. |
+
+Worker names above are bare on purpose. Installed as a plugin they are addressed
+`demo-studio:build-spec` and so on; symlinked into a personal skills directory they
+are addressed `build-spec`. The bare name is the identity in both cases, so use it
+and let the prefix resolve.
 
 ## Sequencing
 
@@ -41,7 +46,7 @@ before building. Do not present an exhaustive menu.
 
 The create slides flow through three artifacts: the flow-guide previews, the
 PPTX, and the presenter guide. Build a net-new slide once with
-`demo-studio:create-slides` and keep it consistent across all three rather
+`create-slides` and keep it consistent across all three rather
 than redrawing it per artifact.
 
 ## Disciplines

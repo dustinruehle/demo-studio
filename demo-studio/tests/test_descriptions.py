@@ -104,7 +104,14 @@ class TestDescriptions(unittest.TestCase):
         self.assertNotIn("@skills/", body)
         for worker in WORKERS:
             with self.subTest(worker=worker):
-                self.assertIn(f"demo-studio:{worker}", body)
+                # The bare name, not a namespace-prefixed one. A plugin install
+                # addresses these as demo-studio:<worker> and a personal skills
+                # directory addresses them as <worker>; the router must read
+                # correctly under both, so it names the identity and lets the
+                # prefix resolve.
+                self.assertIn(f"`{worker}`", body)
+        self.assertNotIn("demo-studio:demo-discovery", body,
+                         "the router must not hardcode one install method's prefix")
 
 
 if __name__ == "__main__":

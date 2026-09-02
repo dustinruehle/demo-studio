@@ -1,0 +1,15 @@
+{
+  "name": "dan-skills",
+  "metadata": {
+    "description": "Claude Code plugins for pre-sales and demo engineering work"
+  },
+  "owner": {
+    "name": "Dan Nemeth"
+  },
+  "plugins": [
+    {
+      "name": "demo-studio",
+      "source": "./demo-studio"
+    }
+  ]
+}
