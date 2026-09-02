@@ -24,9 +24,13 @@ Top level: `tab_title`, `nav_title`, `nav_sub`, `eyebrow`, `title`, `subtitle`,
 (optional).
 
 `acts`: a map of `act_key -> [label, hex_color]`. The label shows in the nav (its
-part before "·") and as the section eyebrow. Suggested palette: Open `#1C1526`,
-Frame `#B07A00`, Model `#4C2889`, Prime `#2E7D5B`, Prove `#C0503A`, Handoff
-`#6E4FC0`, Demo `#1C1526`.
+part before "·") and as the section eyebrow. Both parts are checked before the
+build: the label must not be blank, and the colour must be six hex digits behind
+a `#` (`#4C2889`), because it lands in a CSS style attribute. Note the contrast
+with the PPTX backend, which wants the same digits with no `#`. Anything else is
+a config error naming the act, rather than an unstyled nav nobody notices.
+Suggested palette: Open `#1C1526`, Frame `#B07A00`, Model `#4C2889`, Prime
+`#2E7D5B`, Prove `#C0503A`, Handoff `#6E4FC0`, Demo `#1C1526`.
 
 Each slide: `num`, `act` (a key in `acts`), `short` (nav label), `title`,
 `onscreen` (what's on the slide), `points` (list), `say` (list of teleprompter
