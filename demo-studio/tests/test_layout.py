@@ -5,6 +5,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+REPO = os.path.dirname(ROOT)
 
 WORKERS = ["demo-studio", "demo-discovery", "build-spec",
            "deck-flow-guide", "create-slides", "presenter-guide"]
@@ -27,6 +28,39 @@ class TestPluginLayout(unittest.TestCase):
             manifest = json.load(f)
         self.assertEqual(manifest["name"], "demo-studio")
         self.assertIn("description", manifest)
+
+    def test_the_marketplace_manifest_lists_the_plugin(self):
+        import json
+        path = os.path.join(REPO, ".claude-plugin", "marketplace.json")
+        self.assertTrue(os.path.exists(path),
+                        "missing .claude-plugin/marketplace.json, the repo is "
+                        "not installable as a marketplace without it")
+        with open(path) as f:
+            manifest = json.load(f)
+        entries = {p["name"]: p["source"] for p in manifest["plugins"]}
+        self.assertEqual(entries.get("demo-studio"), "./demo-studio")
+
+    def test_the_documented_install_commands_are_real(self):
+        """The install block sat on `<owner>/<repo>` through a merge, and the
+        marketplace name it installs from lives in a different file. Both are
+        the first thing a reader runs, and neither is exercised by anything
+        else, so they are checked here against the manifest."""
+        import json
+        with open(os.path.join(REPO, ".claude-plugin", "marketplace.json")) as f:
+            marketplace = json.load(f)
+        with open(os.path.join(REPO, "README.md")) as f:
+            readme = f.read()
+        add = re.search(r"claude plugin marketplace add (\S+)", readme)
+        install = re.search(r"claude plugin install (\S+)@(\S+)", readme)
+        self.assertTrue(add and install, "README documents no install commands")
+        slug = add.group(1)
+        self.assertRegex(slug, r"^[\w.-]+/[\w.-]+$",
+                         "marketplace add names a placeholder, not a real repo")
+        plugin, market = install.group(1), install.group(2)
+        self.assertEqual(market, marketplace["name"],
+                         "README installs from a marketplace name the manifest "
+                         "does not declare")
+        self.assertIn(plugin, {p["name"] for p in marketplace["plugins"]})
 
     def test_every_skill_exists(self):
         for name in WORKERS:

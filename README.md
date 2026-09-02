@@ -10,8 +10,8 @@ artifact by name and skip the rest.
 ## Install
 
 ```bash
-claude plugin marketplace add <owner>/<repo>
-claude plugin install demo-studio@dan-skills
+claude plugin marketplace add dustinruehle/demo-studio
+claude plugin install demo-studio@demo-studio
 ```
 
 That is all it needs. The plugin is pure Python and JavaScript with one npm
