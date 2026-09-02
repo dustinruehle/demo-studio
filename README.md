@@ -1,5 +1,7 @@
 # demo-studio
 
+[![tests](https://github.com/dustinruehle/demo-studio/actions/workflows/tests.yml/badge.svg)](https://github.com/dustinruehle/demo-studio/actions/workflows/tests.yml)
+
 A Claude Code plugin that turns a customer discovery call into the set of things
 you need to walk into the next meeting: a demo build spec, a deck flow guide, the
 net-new slides as a dark PPTX, and a presenter guide with a live-demo run of show.
@@ -106,6 +108,10 @@ bash tests/test_pptx_tools.sh
 The two HTML generators are pinned by golden files in `tests/baseline/`. If a
 change alters them, that is a real change to shipped output and wants looking at
 rather than re-baselining.
+
+CI runs that same matrix on every push and pull request, on Python 3.9 and 3.12
+and on Node 18 and 24, and additionally builds the shipped deck: the slide lint
+runs inside the builder, so a bad slide fails the build rather than the review.
 
 ## How it is put together
 
