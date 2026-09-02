@@ -49,12 +49,12 @@ the same working directory the Quickstart in `SKILL.md` uses.
 
 ```bash
 (cd ../.. && npm install)  # plugin root, once: installs pptxgenjs for every skill
-. ../../shared/pptx_tools.sh
+. shared/pptx_tools.sh
 PPTX_SKILL="$(find_pptx_skill)" || exit 1
 render_preflight || echo "proceeding without visual QA, deck is UNVERIFIED"
 
 node assets/build_create_slides.js
-python3 ../../shared/guardrails.py create-slides.pptx
+python3 shared/guardrails.py create-slides.pptx
 python3 "$PPTX_SKILL/scripts/office/validate.py" create-slides.pptx
 python3 "$PPTX_SKILL/scripts/office/soffice.py" --headless --convert-to pdf create-slides.pptx
 pdftoppm -jpeg -r 150 create-slides.pdf slide      # then VIEW every slide-N.jpg

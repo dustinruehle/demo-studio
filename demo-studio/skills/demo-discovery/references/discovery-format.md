@@ -45,7 +45,7 @@ is load-bearing the moment it ships, not just a label.
 
 ## Grounded versus inferred
 
-This is the same split documented in `../../../shared/grounding.md`, made
+This is the same split documented in `../shared/grounding.md`, made
 mechanical here:
 
 - **Grounded**: the customer said it. Carries `quote` (verbatim) and

@@ -13,13 +13,13 @@ comes from the JSON. See assets/examples/presenter_guide.example.json for the
 schema by example, and references/presenter-guide-format.md for the field guide.
 """
 import html, json, sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 "..", "..", "..", "shared"))
 import brand
 import guardrails
 import traces as traces_mod
 import validate_config
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 import schema_presenter_guide
 
 def esc(s): return html.escape(str(s), quote=True)
@@ -337,7 +337,7 @@ addEventListener('load',setActive); setActive();
 '''
 
 def main():
-    here=os.path.dirname(os.path.abspath(__file__))
+    here=os.path.dirname(os.path.realpath(__file__))
     cfg_path = sys.argv[1] if len(sys.argv)>1 else os.path.join(here,"examples","presenter_guide.example.json")
     out_path = sys.argv[2] if len(sys.argv)>2 else "presenter-guide.html"
     cfg=json.load(open(cfg_path))

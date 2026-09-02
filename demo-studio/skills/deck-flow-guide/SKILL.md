@@ -25,4 +25,4 @@ python3 assets/build_flow_guide.py my_flow.json flow-guide.html
 The generator is the format. Do not hand-roll the HTML or restyle it; change the
 JSON, not the CSS.
 
-Apply the disciplines in `../../shared/grounding.md`.
+Apply the disciplines in `shared/grounding.md`.

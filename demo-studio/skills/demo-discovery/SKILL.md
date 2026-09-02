@@ -58,4 +58,4 @@ v1 = one narrative/domain with the OOTB demos themed and sequenced (cheap,
 robust, independent failure surfaces). v2 = one fused build (higher fidelity,
 higher risk; only with a POC/commitment). Default to v1 for a first session.
 
-Apply the disciplines in `../../shared/grounding.md`.
+Apply the disciplines in `shared/grounding.md`.
