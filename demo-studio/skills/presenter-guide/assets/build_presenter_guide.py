@@ -12,7 +12,7 @@ is fixed and must not be changed; it is the reusable format. Only the CONTENT
 comes from the JSON. See assets/examples/presenter_guide.example.json for the
 schema by example, and references/presenter-guide-format.md for the field guide.
 """
-import html, json, sys, os
+import html, json, re, sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                 "..", "..", "..", "shared"))
 import brand
@@ -25,6 +25,46 @@ import schema_presenter_guide
 def esc(s): return html.escape(str(s), quote=True)
 
 _DEFAULT_ACT_COLOR = brand.tokens("presenter_guide")["indigo"]
+
+# A CSS hex colour: the value lands in a style attribute, so six digits behind
+# a '#' and nothing else. The PPTX backend wants the same digits without the
+# '#', which is exactly the confusion this catches.
+_ACT_COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def check_acts(cfg):
+    """Acts rules the schema dialect cannot express. Call after enforce().
+
+    `acts` can be declared as an object and no further: the dialect has no way
+    to say "a map of act_key -> [label, colour]". build() indexes v[0] and v[1]
+    straight out of the value, so a string act yielded its first two characters
+    and put `style="color:n"` on the page. The act colouring was silently gone,
+    with nothing raised and nothing written to stderr.
+    """
+    problems = []
+    acts = cfg.get("acts", {})
+    for key in sorted(acts):
+        value = acts[key]
+        where = "acts.%s" % key
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            problems.append('%s: expected [label, "#RRGGBB"], got %r'
+                            % (where, value))
+            continue
+        label, color = value
+        if not isinstance(label, str) or not label.strip():
+            problems.append("%s[0]: label must not be blank, got %r"
+                            % (where, label))
+        if not isinstance(color, str) or not _ACT_COLOR_RE.match(color):
+            problems.append('%s[1]: colour must be six hex digits behind a '
+                            '"#", got %r' % (where, color))
+    for i, slide in enumerate(cfg["slides"]):
+        if slide["act"] not in acts:
+            problems.append("slides[%d].act: %r is not a key in acts (have: %s)"
+                            % (i, slide["act"], ", ".join(sorted(acts))))
+    if problems:
+        raise validate_config.ConfigError(
+            "%d config error(s):\n%s" % (len(problems), "\n".join(problems)))
+
 
 def build(cfg):
     ACT = {k:(v[0], v[1]) for k,v in cfg.get("acts", {}).items()}
@@ -344,11 +384,7 @@ def main():
 
     validate_config.enforce(cfg, schema_presenter_guide.SCHEMA, name=os.path.basename(cfg_path))
 
-    for i, slide in enumerate(cfg["slides"]):
-        if slide["act"] not in cfg["acts"]:
-            raise validate_config.ConfigError(
-                "slides[%d].act: %r is not a key in acts (have: %s)"
-                % (i, slide["act"], ", ".join(sorted(cfg["acts"]))))
+    check_acts(cfg)
 
     allowlist = cfg.get("allow_words", ())
     banned = cfg.get("banned_terms", ())

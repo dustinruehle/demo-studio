@@ -130,5 +130,34 @@ class TestRealSchemas(unittest.TestCase):
             self.assertEqual(vc.validate(json.load(f), schema_presenter_guide.SCHEMA), [])
 
 
+class TestGuardrailWordListsAreTypedBySchema(unittest.TestCase):
+    """guardrails.check_text lowercases every allow_words entry and escapes
+    every banned_terms entry into a regex: both assume a string, and neither
+    guards against anything else. Nothing defends that assumption at the call
+    site, so what keeps a JSON `null` out of those lists is each config's own
+    schema running first, in every generator. Pin it here: loosen one of these
+    field types, or move enforce() after the guardrail pass, and this fails
+    rather than surfacing as an AttributeError traceback in someone's terminal.
+    """
+
+    SCHEMAS = [
+        ("deck-flow-guide", "schema_flow_guide"),
+        ("presenter-guide", "schema_presenter_guide"),
+        ("demo-discovery", "schema_discovery"),
+    ]
+
+    def test_a_null_word_is_a_schema_error_in_every_generator(self):
+        import importlib
+        for skill, module_name in self.SCHEMAS:
+            sys.path.insert(0, os.path.join(ROOT, "skills", skill, "assets"))
+            schema = importlib.import_module(module_name).SCHEMA
+            for field in ("allow_words", "banned_terms"):
+                with self.subTest(skill=skill, field=field):
+                    errors = vc.validate({field: [None]}, schema)
+                    self.assertTrue(
+                        any(field in e and "expected string" in e for e in errors),
+                        "%s.%s accepted a null entry: %r" % (skill, field, errors))
+
+
 if __name__ == "__main__":
     unittest.main()

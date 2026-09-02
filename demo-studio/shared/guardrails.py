@@ -37,7 +37,13 @@ _TELL_RES = tuple((w, _word_re(w)) for w in AI_TELLS)
 
 
 def check_text(value, field, allowlist=(), banned=()):
-    """Check one string. Returns a list of Violation, empty when clean."""
+    """Check one string. Returns a list of Violation, empty when clean.
+
+    Both word lists are assumed to hold strings: an entry is lowercased, or
+    escaped into a regex. What guarantees that is each config's schema, which
+    types both fields and runs before this does. Pinned by a test in
+    tests/test_validate_config.py, so the guarantee cannot quietly go away.
+    """
     if not isinstance(value, str):
         return []
     out = []
@@ -110,12 +116,15 @@ def enforce(violations):
 
 # Constructs Google Slides silently drops on import. A deck can look correct in
 # PowerPoint and arrive in Slides with its arrows missing, so check the file.
+# An element ends with a space (attributes follow), '>' (children follow), or
+# '/' (self-closing, no children). Matching only the first two let <p:cxnSp/>
+# through. An attribute value is quoted either way, so accept both quotes.
 _PPTX_BANNED = (
-    ("pptx-connector", re.compile(r"<p:cxnSp[ >]"),
+    ("pptx-connector", re.compile(r"<p:cxnSp[ />]"),
      "line connector, use a block arrow autoshape"),
-    ("pptx-connector", re.compile(r'prst="(straight|bent|curved)Connector'),
+    ("pptx-connector", re.compile(r"""prst=["'](straight|bent|curved)Connector"""),
      "connector geometry, use a block arrow autoshape"),
-    ("pptx-dash", re.compile(r"<a:prstDash[ >]"),
+    ("pptx-dash", re.compile(r"<a:prstDash[ />]"),
      "dashed line, use a solid border"),
 )
 
