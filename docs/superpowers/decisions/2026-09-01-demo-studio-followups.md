@@ -4,27 +4,21 @@ Findings deliberately deferred during execution, plus the two recommendations
 the final review promoted. Nothing here blocks merge; the top two are the ones
 worth doing soon.
 
-## Do these first
+## Done
 
-### 1. The low-contrast lint rule is mis-tiered in both directions
-
-`skills/create-slides/assets/lint_slides.js`. It gates box body text at the WCAG
-normal-text ratio of 4.5:1, but those runs carry no explicit size and render at the
-18pt default, which is the large-text tier of 3:1. So it rejects the brand's own
-accent: indigo on the panel is 4.19:1 and hard-fails the build, with no per-op
-escape. Meanwhile it skips `label` ops entirely, and at 9pt those are the only
-text genuinely in the normal tier. Strict where it should be lenient, silent where
-it should be strict. Nothing in the repo trips it today: the shipped eyebrow passes
-at 4.69:1, 4 percent of headroom.
-
-### 2. The guardrail meta-key skip is depth-unbounded
-
-`shared/guardrails.py`. `if key in _META_KEYS: continue` fires at any nesting
-depth, so a subtree under a nested key named `banned_terms` or `allow_words`
-escapes the em-dash, AI-tell and public-safe checks alike. One-line fix:
-`if not _path and key in _META_KEYS`. It is a hole in the gate the final fix
-wave existed to repair, and the docs now overclaim by saying the scan covers
-every text field.
+- **The low-contrast rule's tiering, fixed.** It now derives the WCAG threshold
+  from the text's actual rendered size: 3:1 for large text (18pt, or 14pt bold
+  and above), 4.5:1 otherwise. Box runs carry no explicit size and render at the
+  pptxgenjs 18pt default, so they take the large tier and the brand accent passes
+  at 4.19:1. Labels are 9pt and take the strict tier, so they are now checked at
+  all, which they previously were not. Both directions are pinned by tests that
+  were watched failing first.
+- **The guardrail meta-key skip, scoped.** `banned_terms` and `allow_words` are
+  exempt only at the top level, where they are the config's own meta fields. A
+  nested key that merely shares the name is ordinary content and is scanned again.
+- **Plugin installation, decided.** The repo ships a marketplace manifest and is
+  installable with two commands; the router names workers without a namespace
+  prefix so it reads correctly under both install methods.
 
 ## Also open
 

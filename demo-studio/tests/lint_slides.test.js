@@ -156,3 +156,32 @@ test('LOW CONTRAST: the real default palette header colours pass against the rea
   const f = lintSlides([cleanHeader()]);
   assert.ok(!f.some((x) => x.rule === 'low-contrast'));
 });
+
+// WCAG AA has two tiers and this deck spans both. Gating everything at 4.5
+// rejects the brand's own accent on 18pt box text; gating everything at 3
+// lets an unreadable 9pt label through. These pin both directions.
+
+test('box text takes the large-text tier, so a brand accent passes', () => {
+  const s = one((k) => k.box(1, 2, 4, 1, { rt: 'X', fill: '241C33', color: '8E6BE6' }));
+  const f = lintSlides(s).filter((x) => x.rule === 'low-contrast');
+  assert.deepStrictEqual(f, [], 'brand indigo on the panel is 4.19:1, fine at the 3:1 large tier');
+});
+
+test('box text still catches the black-on-near-black that shipped', () => {
+  const s = one((k) => k.box(1, 2, 4, 1, { rt: 'X', fill: '241C33', color: '000000' }));
+  const f = lintSlides(s).filter((x) => x.rule === 'low-contrast');
+  assert.strictEqual(f.length, 1);
+  assert.match(f[0].detail, /needs 3:1/);
+});
+
+test('a label takes the normal tier, being small and only 9pt', () => {
+  const s = one((k) => k.label(1, 2, 4, 'LBL', '3A3350', 9, 'center'));
+  const f = lintSlides(s).filter((x) => x.rule === 'low-contrast');
+  assert.strictEqual(f.length, 1, 'a near-invisible label must be caught');
+  assert.match(f[0].detail, /needs 4\.5:1/);
+});
+
+test('a legible label passes', () => {
+  const s = one((k) => k.label(1, 2, 4, 'LBL', 'F4F1FB', 9, 'center'));
+  assert.deepStrictEqual(lintSlides(s).filter((x) => x.rule === 'low-contrast'), []);
+});
