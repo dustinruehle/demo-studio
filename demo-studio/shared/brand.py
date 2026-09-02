@@ -8,7 +8,7 @@ Stdlib only, Python 3.9 compatible.
 import json
 import os
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = os.path.dirname(os.path.realpath(__file__))
 _PATH = os.path.join(_HERE, "brand.json")
 
 _cache = None

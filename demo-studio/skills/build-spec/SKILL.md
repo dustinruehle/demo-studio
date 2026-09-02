@@ -20,4 +20,4 @@ cp assets/build_spec_template.md BUILD_SPEC.md
 # fill it in (see references/build-spec.md)
 ```
 
-Apply the disciplines in `../../shared/grounding.md`.
+Apply the disciplines in `shared/grounding.md`.

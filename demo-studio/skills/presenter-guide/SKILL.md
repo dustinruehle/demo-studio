@@ -23,4 +23,4 @@ cp assets/examples/presenter_guide.example.json my_pg.json
 python3 assets/build_presenter_guide.py my_pg.json presenter-guide.html
 ```
 
-Apply the disciplines in `../../shared/grounding.md`.
+Apply the disciplines in `shared/grounding.md`.

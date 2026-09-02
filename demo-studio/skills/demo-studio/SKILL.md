@@ -46,6 +46,6 @@ than redrawing it per artifact.
 
 ## Disciplines
 
-Read `../../shared/grounding.md`. Provenance, reference wins, public safe, no
-AI tells. The mechanical rules are enforced by `../../shared/guardrails.py`, so a
+Read `shared/grounding.md`. Provenance, reference wins, public safe, no
+AI tells. The mechanical rules are enforced by `shared/guardrails.py`, so a
 violation fails the build rather than needing to be remembered.

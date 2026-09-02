@@ -83,7 +83,7 @@ slide cannot drift apart.
 with arrows). Use `viewBox="0 0 1333 750"` with
 `preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%"`, matching
 the slide's real 13.333 x 7.5in canvas at slidekit's 100x scale. For colors, use
-the tokens in `../../../shared/brand.json` rather than hardcoding hex here; a
+the tokens in `../shared/brand.json` rather than hardcoding hex here; a
 prose palette drifts the moment brand.json changes and this doc does not. Give
 each SVG its own arrowhead `<marker>`s.
 
