@@ -1,0 +1,66 @@
+{
+  "_note": "Single source for colour and type. 'core' is shared by every surface; a surface may override or extend it. flow_guide and presenter_guide carry different accent values today, which is preserved deliberately: unifying them would restyle a shipped guide.",
+  "core": {
+    "indigo": "#4C2889",
+    "indigo-ink": "#2A1650",
+    "indigo-tint": "#EFEAF6",
+    "ink": "#1C1526",
+    "paper": "#F6F4FA",
+    "card": "#FFFFFF",
+    "muted": "#6A6478",
+    "line": "#E4E0EC"
+  },
+  "surfaces": {
+    "flow_guide": {
+      "amber": "#E0A100",
+      "green": "#3B8C6E",
+      "green-tint": "#E8F2ED",
+      "green-ink": "#245A44",
+      "coral": "#E2664A",
+      "coral-tint": "#FBEDE8",
+      "coral-ink": "#B24326",
+      "drill-line": "#E7B8A8",
+      "drill-hover": "#8F351D",
+      "hbox-border": "#D8CDE9"
+    },
+    "presenter_guide": {
+      "faint": "#8B84A3",
+      "amber": "#B07A00",
+      "green": "#2E7D5B",
+      "green-tint": "#E8F2ED",
+      "green-border": "#CDE7DB",
+      "green-ink": "#245A44",
+      "coral": "#C0503A",
+      "coral-tint": "#FBEDE8",
+      "coral-border": "#F0D8CE",
+      "coral-ink": "#B24326",
+      "term-bg": "#241C33",
+      "term-fg": "#F4F1FB",
+      "term-accent": "#F5A38A",
+      "on-dark": "#C9B8F0",
+      "on-dark-body": "#E7DEFA",
+      "on-dark-pre": "#E7E2F5"
+    },
+    "pptx": {
+      "bg": "#17131F",
+      "panel": "#241C33",
+      "panel2": "#1E1830",
+      "wf": "#2C2247",
+      "border": "#3A3350",
+      "indigo": "#8E6BE6",
+      "indigo-backbone": "#6E4FC0",
+      "coral": "#F0805E",
+      "coral-fill": "#2A1D1A",
+      "green": "#5FBE97",
+      "amber": "#E9B23A",
+      "txt": "#F4F1FB",
+      "mut": "#B4AECA",
+      "faint": "#8B84A3"
+    }
+  },
+  "fonts": {
+    "heading": "Fraunces",
+    "body": "IBM Plex Sans",
+    "mono": "JetBrains Mono"
+  }
+}

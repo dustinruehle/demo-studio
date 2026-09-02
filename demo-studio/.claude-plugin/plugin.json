@@ -1,0 +1,7 @@
+{
+  "name": "demo-studio",
+  "description": "Turn a discovery call into a demo build spec, a deck flow guide, the net-new slides, and a presenter guide with a live-demo run of show",
+  "version": "1.0.0",
+  "author": { "name": "Dan Nemeth" },
+  "keywords": ["pre-sales", "demo", "deck", "presenter-guide", "enablement"]
+}
