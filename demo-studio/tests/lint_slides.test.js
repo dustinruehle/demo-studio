@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
-const path = require('path');
+const path = require('node:path');
 
 const base = path.join(__dirname, '..', 'skills', 'create-slides', 'assets');
 const kit = require(path.join(base, 'slidekit.js'));
@@ -45,8 +45,70 @@ test('flags a colour written with a leading hash', () => {
   assert.strictEqual(f[0].rule, 'hash-in-hex');
 });
 
+// BAD COLOUR: parseInt(...) || 0 used to turn any malformed value into black
+// channels, and coloursOf only ever checked for a leading '#'. A colour must
+// be exactly six hex digits after any leading '#', or it must be caught here
+// rather than silently rendering as black (or crashing pptxgenjs).
+
+test('flags a three-digit hex shorthand with no leading hash', () => {
+  const f = lintSlides(one((k) => k.frame(1, 1, 2, 1, 'FFF')));
+  assert.strictEqual(f[0].rule, 'bad-colour');
+});
+
+test('flags a CSS colour name', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, 2, 1, { rt: 'x', fill: 'red' })));
+  assert.ok(f.some((x) => x.rule === 'bad-colour'), 'expected a bad-colour finding for fill: red');
+});
+
+test('the exact bug: a malformed color and an invalid fill both get caught', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, 2, 1, { rt: 'x', color: 'FFF', fill: 'red' })));
+  const bad = f.filter((x) => x.rule === 'bad-colour');
+  assert.strictEqual(bad.length, 2, 'expected both color and fill to be flagged');
+});
+
+test('flags a malformed opts.line', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, 2, 1, { rt: 'x', line: 'blue' })));
+  assert.ok(f.some((x) => x.rule === 'bad-colour'), 'expected a bad-colour finding for line: blue');
+});
+
+test('flags a malformed opts.color (box text colour)', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, 2, 1, { rt: 'x', color: 'ZZZZZZ' })));
+  assert.ok(f.some((x) => x.rule === 'bad-colour'), 'expected a bad-colour finding for opts.color');
+});
+
+test('opts.color with a leading hash is covered by hash-in-hex too', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, 2, 1, { rt: 'x', color: '#8E6BE6' })));
+  assert.ok(f.some((x) => x.rule === 'hash-in-hex'), 'opts.color was not covered by hash-in-hex before this fix');
+});
+
+test('a well-formed six-digit colour with no hash produces no colour findings', () => {
+  assert.deepStrictEqual(lintSlides(one((k) => k.frame(1, 1, 2, 1, '8E6BE6'))), []);
+});
+
+test('a well-formed colour with a leading hash is only flagged hash-in-hex, not bad-colour', () => {
+  const f = lintSlides(one((k) => k.frame(1, 1, 2, 1, '#8E6BE6')));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'hash-in-hex');
+});
+
 test('flags a zero-size shape', () => {
   assert.strictEqual(lintSlides(one((k) => k.box(1, 1, 0, 1, {})))[0].rule, 'zero-size');
+});
+
+// A negative width was previously caught by the same `b.w <= 0` branch as an
+// exactly-zero width and mislabelled zero-size. The two are different bugs
+// (a negative dimension cannot come from an empty box; it comes from a
+// swapped or miscomputed coordinate) and now get different rule names.
+test('flags a negative-width shape as invalid-size, not zero-size', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, -1, 1, {})));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'invalid-size');
+});
+
+test('flags a negative-height shape as invalid-size', () => {
+  const f = lintSlides(one((k) => k.box(1, 1, 2, -1, {})));
+  assert.strictEqual(f.length, 1);
+  assert.strictEqual(f[0].rule, 'invalid-size');
 });
 
 test('findings name the slide index and the op index', () => {

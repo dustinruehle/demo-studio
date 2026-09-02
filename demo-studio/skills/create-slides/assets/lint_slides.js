@@ -42,12 +42,23 @@ function coloursOf(o) {
   if (o.opts) {
     if (o.opts.fill != null) out.push(o.opts.fill);
     if (o.opts.line != null) out.push(o.opts.line);
+    if (o.opts.color != null) out.push(o.opts.color);
   }
   return out;
 }
 
 function normHex(c) {
   return String(c || '').replace(/^#/, '').toUpperCase();
+}
+
+// A colour must be exactly six hex digits after any leading '#'. parseInt
+// with `|| 0` used to turn any malformed value into black channels, so a
+// typo like 'FFF' or a CSS name like 'red' silently rendered as black
+// instead of failing the lint.
+const HEX6_RE = /^[0-9A-Fa-f]{6}$/;
+
+function isBadColour(c) {
+  return typeof c !== 'string' || !HEX6_RE.test(c.replace(/^#/, ''));
 }
 
 // WCAG relative luminance and contrast ratio, no dependency. Formula per
@@ -119,7 +130,10 @@ function lintSlides(slides, palette) {
       }
 
       if (!hasInvalidCoord) {
-        if (b.w <= 0 || b.h <= 0) {
+        if (b.w < 0 || b.h < 0) {
+          findings.push(Object.assign({}, at, { rule: 'invalid-size',
+            detail: `${o.op} has width ${b.w} and height ${b.h}` }));
+        } else if (b.w === 0 || b.h === 0) {
           findings.push(Object.assign({}, at, { rule: 'zero-size',
             detail: `${o.op} has width ${b.w} and height ${b.h}` }));
         } else if (b.x < 0 || b.y < 0
@@ -140,6 +154,10 @@ function lintSlides(slides, palette) {
         if (typeof c === 'string' && c.startsWith('#')) {
           findings.push(Object.assign({}, at, { rule: 'hash-in-hex',
             detail: `pptxgenjs wants ${c.slice(1)}, not ${c}` }));
+        }
+        if (isBadColour(c)) {
+          findings.push(Object.assign({}, at, { rule: 'bad-colour',
+            detail: `${c} is not six hex digits` }));
         }
       }
 

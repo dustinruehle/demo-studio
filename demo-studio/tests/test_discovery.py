@@ -174,6 +174,34 @@ class TestSignalRules(unittest.TestCase):
             build_discovery.check_signals(cfg)
         self.assertIn("attribution", str(ctx.exception))
 
+    def test_a_whitespace_only_signal_text_is_rejected(self):
+        """minLength does not exclude spaces, so a whitespace-only `text`
+        passes the schema. A blank bullet in the rendered record is not as
+        severe as a fabricated citation, but it is the same class of bug:
+        strip before testing, the way quote/attribution already do."""
+        cfg = load_example()
+        signal = cfg["signals"][0]
+        signal["text"] = "   "
+        with self.assertRaises(build_discovery.DiscoveryError) as ctx:
+            build_discovery.check_signals(cfg)
+        self.assertIn("text", str(ctx.exception))
+        self.assertIn(signal["id"], str(ctx.exception))
+
+    def test_a_tab_only_signal_text_is_rejected(self):
+        cfg = load_example()
+        signal = cfg["signals"][0]
+        signal["text"] = "\t"
+        with self.assertRaises(build_discovery.DiscoveryError) as ctx:
+            build_discovery.check_signals(cfg)
+        self.assertIn("text", str(ctx.exception))
+
+    def test_a_whitespace_only_engagement_is_rejected(self):
+        cfg = load_example()
+        cfg["engagement"] = "   "
+        with self.assertRaises(build_discovery.DiscoveryError) as ctx:
+            build_discovery.check_signals(cfg)
+        self.assertIn("engagement", str(ctx.exception))
+
     def test_a_legitimate_grounded_signal_still_passes(self):
         cfg = load_example()
         build_discovery.check_signals(cfg)  # must not raise
@@ -245,6 +273,34 @@ class TestRender(unittest.TestCase):
         self.assertEqual(proc.returncode, 1)
         self.assertIn("usage", proc.stderr.lower())
         self.assertNotIn("Traceback", proc.stderr)
+
+    def test_cli_with_a_missing_config_path_is_a_clean_error_not_a_traceback(self):
+        """main() used to do json.load(open(cfg_path)) directly, ahead of the
+        try/except that only catches ConfigError/GuardrailError/DiscoveryError.
+        A missing path raised straight through as a raw traceback."""
+        missing = os.path.join(ASSETS, "examples", "does-not-exist.json")
+        self.assertFalse(os.path.exists(missing))
+        with tempfile.TemporaryDirectory() as tmp:
+            out = os.path.join(tmp, "discovery.md")
+            proc = subprocess.run(
+                [sys.executable, os.path.join(ASSETS, "build_discovery.py"), missing, out],
+                capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertNotIn("Traceback", proc.stderr)
+            self.assertIn(missing, proc.stderr)
+
+    def test_cli_with_malformed_json_is_a_clean_error_not_a_traceback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = os.path.join(tmp, "bad.json")
+            with open(bad, "w") as f:
+                f.write("{not valid json")
+            out = os.path.join(tmp, "discovery.md")
+            proc = subprocess.run(
+                [sys.executable, os.path.join(ASSETS, "build_discovery.py"), bad, out],
+                capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertNotIn("Traceback", proc.stderr)
+            self.assertIn(bad, proc.stderr)
 
 
 if __name__ == "__main__":

@@ -4,9 +4,28 @@ Deliberately not jsonschema: the skill must run with no pip install. This covers
 the shapes the Demo Studio configs actually use and reports every problem with a
 dotted path, so an author can go straight to the field.
 """
+import json
+
 
 class ConfigError(Exception):
     """Raised when a config does not satisfy its schema."""
+
+
+def load_config(path):
+    """Load a JSON config file. A missing path or invalid JSON becomes a
+    ConfigError naming the path, the same clean-message contract `enforce`
+    gives every other config problem, rather than a raw traceback reaching
+    the caller's terminal.
+    """
+    try:
+        with open(path) as f:
+            text = f.read()
+    except OSError as err:
+        raise ConfigError("could not read %s (%s)" % (path, err.strerror or err))
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as err:
+        raise ConfigError("%s is not valid JSON (%s)" % (path, err))
 
 
 _TYPE_NAMES = {

@@ -54,6 +54,21 @@ class TestBrandTokens(unittest.TestCase):
         self.assertNotIn("acts", brand.load())
         self.assertIn("fonts", brand.load())
 
+    def test_load_returns_a_copy_not_the_live_cache(self):
+        """load() memoises the parsed brand.json in a module-level cache.
+        tokens() and root_block() already defend against a caller mutating
+        what they hand back by copying; load() must too, or a caller that
+        mutates its result poisons every future call for the rest of the
+        process."""
+        data = brand.load()
+        data["core"]["indigo"] = "#000000"
+        data["surfaces"]["pptx"]["bg"] = "#000000"
+        data["poisoned"] = True
+        fresh = brand.load()
+        self.assertEqual(fresh["core"]["indigo"], "#4C2889")
+        self.assertEqual(fresh["surfaces"]["pptx"]["bg"], "#17131F")
+        self.assertNotIn("poisoned", fresh)
+
     def test_every_value_is_a_hex_colour(self):
         for surface in ("flow_guide", "presenter_guide", "pptx"):
             for key, value in brand.tokens(surface).items():
