@@ -25,7 +25,7 @@ else
 fi
 
 # 3. failure names every probed location, so the error is actionable
-out="$(PPTX_SKILL_DIR="$tmp/nope" DEMO_STUDIO_PROBE_ONLY=1 find_pptx_skill 2>&1 || true)"
+out="$(PPTX_SKILL_DIR="$tmp/nope" find_pptx_skill 2>&1 || true)"
 case "$out" in
   *"/mnt/skills/public/pptx"*) ok "failure message names the sandbox path" ;;
   *) bad "failure message did not name the probed locations" ;;

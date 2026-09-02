@@ -98,8 +98,9 @@ def resolve_and_report(cfg, cfg_path, stream=None):
     """Load the optional discovery record a config points at, check every
     `traces` value against it, warn or hard-fail, and report. Shared by both
     guide generators so the severity split (an unresolved id hard-fails, free
-    text only warns) and the "not checked" note live in exactly one place;
-    F10's discovery-record-parses-to-{} fix then also lives in one place.
+    text only warns) and the "not checked" note live in exactly one place,
+    including the case where the discovery record parses to `{}` (see
+    check_traces above: that still gets checked, not silently skipped).
 
     Raises GuardrailError, the same exception every other guardrail in this
     skill raises, so a single except clause in the caller covers this too.

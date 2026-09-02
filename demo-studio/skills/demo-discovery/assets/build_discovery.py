@@ -111,8 +111,7 @@ def main():
         sys.exit(1)
     cfg_path = sys.argv[1]
     out_path = sys.argv[2] if len(sys.argv) > 2 else "discovery.md"
-    with open(cfg_path) as f:
-        cfg = json.load(f)
+    cfg = validate_config.load_config(cfg_path)
     validate_config.enforce(cfg, schema_discovery.SCHEMA,
                             name=os.path.basename(cfg_path))
     check_signals(cfg)

@@ -50,6 +50,44 @@ class TestNoEmDashes(unittest.TestCase):
                     self.assertNotIn("—", f.read())
 
 
+class TestMalformedConfigIsCleanErrorNotTraceback(unittest.TestCase):
+    """main() used to do json.load(open(cfg_path)) directly, ahead of the
+    try/except that only catches ConfigError/GuardrailError. A missing path
+    or invalid JSON therefore raised straight through as a raw traceback
+    instead of the clean, path-naming error every other config problem gets."""
+
+    def test_a_missing_config_path_is_a_clean_error_not_a_traceback(self):
+        for skill, script, _, _ in GENERATORS:
+            with self.subTest(script=script):
+                base = os.path.join(ROOT, "skills", skill, "assets")
+                missing = os.path.join(base, "examples", "does-not-exist.json")
+                self.assertFalse(os.path.exists(missing))
+                with tempfile.TemporaryDirectory() as tmp:
+                    out = os.path.join(tmp, "out.html")
+                    proc = subprocess.run(
+                        [sys.executable, os.path.join(base, script), missing, out],
+                        capture_output=True, text=True)
+                    self.assertNotEqual(proc.returncode, 0)
+                    self.assertNotIn("Traceback", proc.stderr)
+                    self.assertIn(missing, proc.stderr)
+
+    def test_malformed_json_config_is_a_clean_error_not_a_traceback(self):
+        for skill, script, _, _ in GENERATORS:
+            with self.subTest(script=script):
+                base = os.path.join(ROOT, "skills", skill, "assets")
+                with tempfile.TemporaryDirectory() as tmp:
+                    bad = os.path.join(tmp, "bad.json")
+                    with open(bad, "w") as f:
+                        f.write("{not valid json")
+                    out = os.path.join(tmp, "out.html")
+                    proc = subprocess.run(
+                        [sys.executable, os.path.join(base, script), bad, out],
+                        capture_output=True, text=True)
+                    self.assertNotEqual(proc.returncode, 0)
+                    self.assertNotIn("Traceback", proc.stderr)
+                    self.assertIn(bad, proc.stderr)
+
+
 class TestEmptyDiscoveryRecordIsNotSilentlySkipped(unittest.TestCase):
     """A discovery.json that reads back as `{}` was still loaded: the config
     named a real, readable file. The generator must report on it (an

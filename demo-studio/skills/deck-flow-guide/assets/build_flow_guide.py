@@ -256,7 +256,7 @@ def main():
     here=os.path.dirname(os.path.realpath(__file__))
     cfg_path = sys.argv[1] if len(sys.argv)>1 else os.path.join(here,"examples","flow_guide.example.json")
     out_path = sys.argv[2] if len(sys.argv)>2 else "flow-guide.html"
-    cfg=json.load(open(cfg_path))
+    cfg=validate_config.load_config(cfg_path)
 
     validate_config.enforce(cfg, schema_flow_guide.SCHEMA, name=os.path.basename(cfg_path))
 

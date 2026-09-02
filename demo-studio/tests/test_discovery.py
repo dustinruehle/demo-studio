@@ -246,6 +246,34 @@ class TestRender(unittest.TestCase):
         self.assertIn("usage", proc.stderr.lower())
         self.assertNotIn("Traceback", proc.stderr)
 
+    def test_cli_with_a_missing_config_path_is_a_clean_error_not_a_traceback(self):
+        """main() used to do json.load(open(cfg_path)) directly, ahead of the
+        try/except that only catches ConfigError/GuardrailError/DiscoveryError.
+        A missing path raised straight through as a raw traceback."""
+        missing = os.path.join(ASSETS, "examples", "does-not-exist.json")
+        self.assertFalse(os.path.exists(missing))
+        with tempfile.TemporaryDirectory() as tmp:
+            out = os.path.join(tmp, "discovery.md")
+            proc = subprocess.run(
+                [sys.executable, os.path.join(ASSETS, "build_discovery.py"), missing, out],
+                capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertNotIn("Traceback", proc.stderr)
+            self.assertIn(missing, proc.stderr)
+
+    def test_cli_with_malformed_json_is_a_clean_error_not_a_traceback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = os.path.join(tmp, "bad.json")
+            with open(bad, "w") as f:
+                f.write("{not valid json")
+            out = os.path.join(tmp, "discovery.md")
+            proc = subprocess.run(
+                [sys.executable, os.path.join(ASSETS, "build_discovery.py"), bad, out],
+                capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertNotIn("Traceback", proc.stderr)
+            self.assertIn(bad, proc.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
