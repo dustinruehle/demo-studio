@@ -155,6 +155,16 @@ class TestPptxChecks(unittest.TestCase):
     def _build(self, kind, path):
         subprocess.run([sys.executable, self.FIXTURES, kind, path], check=True)
 
+    def _deck(self, path, body):
+        """Write a one-slide deck whose spTree holds `body`."""
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("ppt/slides/slide1.xml",
+                       '<?xml version="1.0" encoding="UTF-8"?>'
+                       '<p:sld xmlns:p="http://schemas.openxmlformats.org/'
+                       'presentationml/2006/main" xmlns:a="http://schemas.'
+                       'openxmlformats.org/drawingml/2006/main">'
+                       '<p:cSld><p:spTree>' + body + '</p:spTree></p:cSld></p:sld>')
+
     def test_flags_a_line_connector(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "bad.pptx")
@@ -205,6 +215,46 @@ class TestPptxChecks(unittest.TestCase):
             fields = [v.field for v in found]
             expected = ["slide%d" % n for n in range(1, 12)]
             self.assertEqual(fields, expected)
+
+    def test_flags_a_self_closing_connector(self):
+        """The element patterns were anchored on `[ >]`, a space or the end of
+        an opening tag. A shape carrying no children is written `<p:cxnSp/>`,
+        which has neither, so the connector Google Slides drops walked
+        straight through the gate that exists to catch it."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "selfclosing.pptx")
+            self._deck(path, "<p:cxnSp/>")
+            self.assertIn("pptx-connector", {v.check for v in g.check_pptx(path)})
+
+    def test_flags_a_self_closing_dashed_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "selfclosingdash.pptx")
+            self._deck(path, "<p:sp><p:spPr><a:ln><a:prstDash/></a:ln></p:spPr></p:sp>")
+            self.assertIn("pptx-dash", {v.check for v in g.check_pptx(path)})
+
+    def test_flags_a_single_quoted_connector_geometry(self):
+        """XML attribute values are as valid in single quotes as in double.
+        The geometry pattern only matched `prst="`, so any writer that quotes
+        the other way produced a deck this gate called clean."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "singlequoted.pptx")
+            self._deck(path, "<p:sp><p:spPr>"
+                             "<a:prstGeom prst='straightConnector1'/>"
+                             "</p:spPr></p:sp>")
+            self.assertIn("pptx-connector", {v.check for v in g.check_pptx(path)})
+
+    def test_widening_does_not_flag_neighbouring_names(self):
+        """A '/' in the character class must not turn the patterns greedy.
+        `<p:nvCxnSpPr/>` reads like the connector element and is not one, and
+        `prst='rightArrow'` is the block arrow the guardrail tells authors to
+        use instead of a connector."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "neighbours.pptx")
+            self._deck(path, "<p:sp><p:nvCxnSpPr/><p:spPr>"
+                             "<a:prstGeom prst='rightArrow'/>"
+                             "<a:ln><a:solidFill/></a:ln>"
+                             "</p:spPr></p:sp>")
+            self.assertEqual(g.check_pptx(path), [])
 
     def test_non_zip_file_returns_unreadable_violation(self):
         with tempfile.TemporaryDirectory() as tmp:
