@@ -1,0 +1,61 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Everything lives in the plugin directory; the repo root holds only the
+# marketplace manifest and the README.
+defaults:
+  run:
+    working-directory: demo-studio
+
+jobs:
+  python:
+    name: python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # The floor the README promises, and the version the maintainer runs.
+      # 3.9 is the one that catches a newer syntax slipping into a generator.
+      matrix:
+        python: ['3.9', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      # Schemas, guardrails, traces, the layout contract, and the two
+      # generators against their captured goldens.
+      - name: unit and generator tests
+        run: python -m unittest discover -s tests
+      - name: pptx tool probes
+        run: bash tests/test_pptx_tools.sh
+
+  node:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: demo-studio/package-lock.json
+      - run: npm ci
+      - name: slidekit and slide-lint tests
+        run: node --test
+      # The lint runs inside the builder, so building the shipped deck is
+      # itself the gate: off-canvas geometry, malformed colours, em dashes,
+      # and text under the WCAG threshold for its size all fail here.
+      - name: the real deck builds through the slide lint
+        working-directory: demo-studio/skills/create-slides/assets
+        run: node build_create_slides.js
+      - name: and the deck passes the Google Slides gate
+        run: python3 shared/guardrails.py skills/create-slides/assets/create-slides.pptx
