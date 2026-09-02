@@ -14,13 +14,25 @@ _PATH = os.path.join(_HERE, "brand.json")
 _cache = None
 
 
+def _copy_dict(d):
+    """Recursively copy a dict of dicts. Every leaf in brand.json is an
+    immutable string, so only the dict nodes themselves need copying."""
+    return {k: (_copy_dict(v) if isinstance(v, dict) else v) for k, v in d.items()}
+
+
 def load():
-    """Parse brand.json once and memoise it."""
+    """Parse brand.json once, memoise it, and return a copy.
+
+    Handing back the live cache would let any caller that mutates the
+    returned dict poison it process-wide, for every subsequent caller. tokens()
+    and root_block() already build a fresh dict on every call; load() must give
+    the same guarantee to a caller that reaches for the raw data directly.
+    """
     global _cache
     if _cache is None:
         with open(_PATH) as f:
             _cache = json.load(f)
-    return _cache
+    return _copy_dict(_cache)
 
 
 def tokens(surface):

@@ -126,8 +126,13 @@ def check_pptx(path):
     out = []
     try:
         with zipfile.ZipFile(path) as z:
-            names = sorted(n for n in z.namelist()
-                           if re.match(r"ppt/slides/slide\d+\.xml$", n))
+            # Sort by slide number, not filename text: lexicographic order
+            # puts slide10 and slide11 ahead of slide2 in any deck of ten or
+            # more slides, which misorders the report.
+            names = sorted(
+                (n for n in z.namelist()
+                 if re.match(r"ppt/slides/slide\d+\.xml$", n)),
+                key=lambda n: int(re.search(r"slide(\d+)\.xml$", n).group(1)))
             for name in names:
                 slide = re.sub(r".*/(slide\d+)\.xml$", r"\1", name)
                 xml = z.read(name).decode("utf-8", "replace")

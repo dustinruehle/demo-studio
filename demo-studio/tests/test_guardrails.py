@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -181,6 +182,29 @@ class TestPptxChecks(unittest.TestCase):
             path = os.path.join(tmp, "ok.pptx")
             self._build("clean", path)
             self.assertEqual(g.check_pptx(path), [])
+
+    def test_slide_order_is_numeric_not_lexicographic(self):
+        """A deck of eleven or more slides sorts slide10 ahead of slide2
+        lexicographically. check_pptx must report findings in slide-number
+        order, so a reader sees slide1, slide2, ..., slide11, not slide1,
+        slide10, slide11, slide2, ..."""
+        dash_slide = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"'
+            '       xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+            '<p:cSld><p:spTree>'
+            '<p:sp><p:spPr><a:ln><a:prstDash val="dash"/></a:ln></p:spPr></p:sp>'
+            '</p:spTree></p:cSld></p:sld>'
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "eleven.pptx")
+            with zipfile.ZipFile(path, "w") as z:
+                for n in range(1, 12):
+                    z.writestr("ppt/slides/slide%d.xml" % n, dash_slide)
+            found = g.check_pptx(path)
+            fields = [v.field for v in found]
+            expected = ["slide%d" % n for n in range(1, 12)]
+            self.assertEqual(fields, expected)
 
     def test_non_zip_file_returns_unreadable_violation(self):
         with tempfile.TemporaryDirectory() as tmp:
